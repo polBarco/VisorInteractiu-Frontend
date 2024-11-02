@@ -1,79 +1,43 @@
-// src/components/Map.js
 import React from "react";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import Cartography from './Cartography'; // Asegúrate de que esta ruta sea correcta
+import { MapContainer, TileLayer, Popup, Marker } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "./Map.css";
 
-// Coordenadas de la Universidade SAVE
-const position = [-24.7026, 34.7473];
+const customIcon = new L.Icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png", // Asegúrate de que la URL sea accesible
+    iconSize: [25, 41], // Tamaño del icono
+    iconAnchor: [12, 41], // Posición del ancla
+});
 
-function MapComponent() {
-  return (
-    <div style={{ position: "relative", height: "100vh" }}>
-      <MapContainer center={position} zoom={10} style={{ width: "100%", height: "100%" }}>
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={position}>
-          <Popup>
-            Universidade SAVE, Mozambique
-          </Popup>
-        </Marker>
-      </MapContainer>
-      {/* Renderiza Cartography aquí, que manejará la lógica de la API */}
-      {/* <Cartography /> */}
-    </div>
-  );
-}
+const Map = ({ geoData }) => {
+    console.log("geoData recibido en Map:", geoData); // Verifica la estructura de geoData
 
-export default MapComponent;
+    return (
+        <MapContainer
+            center={[41.3851, 2.1734]} // Centra el mapa en Cataluña por defecto
+            zoom={8} // Ajusta el zoom para ver Cataluña
+            className="map-container"
+        >
+            <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            />
 
+            {/* Renderizar cada polígono en el MultiPolygon solo si `geoData` tiene la estructura correcta */}
+            {geoData && geoData.length > 0 && geoData.map((coordinate, index) => (
+                <Marker
+                    key={index}
+                    position={coordinate} // Ya en formato [latitud, longitud]
+                    icon={customIcon}
+                >
+                    <Popup>
+                        Coordenadas: [{coordinate[0]}, {coordinate[1]}]
+                    </Popup>
+                </Marker>
+            ))}
+        </MapContainer>
+    );
+};
 
-
-
-
-// import React, { useState } from "react";
-// import { MapContainer, TileLayer, Marker, Popup, GeoJSON } from 'react-leaflet';
-// import 'leaflet/dist/leaflet.css';
-// import Cartography from "./Cartography";
-
-// // Coordenadas de la Universidade SAVE
-// const position = [-24.7026, 34.7473];
-
-// function MapComponent() {
-
-//   const [geoData, setGeoData] = useState(null);
-
-//   const handleDataReady = (data) => {
-//       setGeoData(data);
-//   };
-
-//   return (
-//     <MapContainer center={position} zoom={10} style={{ width: "100vw", height: "100vh" }}>
-//       {/* TileLayer con el URL de OpenStreetMap */}
-//       <TileLayer
-//         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//       />
-
-//       {/* Componente para obtener los datos */}
-//       <Cartography onDataReady={handleDataReady} />
-
-//       {/* Renderizar la geometría recibida */}
-//       {geoData && (
-//         <GeoJSON
-//           data={geoData}
-//           style={{ color: 'brown', fillColor: 'lightbrown', weight: 1, fillOpacity: 0.5 }}
-//         />
-//       )}
-
-//       {/* Ejemplo de algunos marcadores a lo largo de la costa */}
-//       <Marker position={position}>
-//         <Popup>
-//           Universidade SAVE, Mozambique
-//         </Popup>
-//       </Marker>
-//     </MapContainer>
-//   );
-// }
-
-// export default MapComponent;
+export default Map;
