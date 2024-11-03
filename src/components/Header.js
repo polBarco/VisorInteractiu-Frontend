@@ -9,6 +9,7 @@ const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [geoData, setGeoData] = useState(null); // Almacena los datos de cartografía
     const [selectedElement, setSelectedElement] = useState(null);
+    const [cachedData, setCacheData] = useState({});
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -17,10 +18,20 @@ const Header = () => {
     const handleOptionClick = (option) => {
         setSelectedElement(option);
         setIsMenuOpen(false);
+
+        if(cachedData && cachedData[option]) {
+            setGeoData(cachedData[option]);
+        } else {
+            setSelectedElement(option);
+        }
     };
 
     const handleDataFetched = (data) => {
         console.log("Datos de cartografía recibidos:", data); // Verifica los datos en Header
+        setCacheData((prevCache) => ({
+            ...prevCache,
+            [selectedElement]: data
+        }));
         setGeoData(data); // Almacena los datos en el estado local para pasarlos al mapa
     };
 
@@ -77,11 +88,11 @@ const Header = () => {
                 </div>
             </header>
             {/* Renderiza Cartography solo si `selectedElement` está definido */}
-            {selectedElement && (
+            {selectedElement && !cachedData[selectedElement] && (
                 <Cartography element={selectedElement} onDataFetched={handleDataFetched} />
             )}
             {/* Renderiza el mapa con los datos de `geoData` una vez recibidos */}
-            <Map geoData={geoData} />
+            <Map geoData={geoData} element={selectedElement} />
         </div>
     );
 };

@@ -21,8 +21,9 @@ const Cartography = ({ element, onDataFetched }) => {
                             const multipolygonCoordinates = feature.geometry.coordinates;
 
                             // Procesa los polígonos
-                            multipolygonCoordinates.forEach((polygon) => {
-                                polygon.forEach((coordinate) => {
+                            multipolygonCoordinates.forEach((polygonCoordinates) => {
+                                let polygon = [];
+                                polygonCoordinates.forEach((coordinate) => {
                                     // Verifica que cada `coordinate` sea un array con dos valores (longitud, latitud)
                                     if (
                                         Array.isArray(coordinate) &&
@@ -30,11 +31,17 @@ const Cartography = ({ element, onDataFetched }) => {
                                         typeof coordinate[0] === "number" &&
                                         typeof coordinate[1] === "number"
                                     ) {
-                                        coordinatesArray.push([coordinate[1], coordinate[0]]); // Convertir [longitud, latitud] a [latitud, longitud]
+                                        polygon.push([coordinate[1], coordinate[0]]); // Convertir [longitud, latitud] a [latitud, longitud]
                                     } else {
                                         console.warn("Punto inválido encontrado:", coordinate);
                                     }
                                 });
+                                if (polygon.length > 0) {
+                                    coordinatesArray.push({
+                                        element: feature.properties.element,
+                                        coordinates: polygon,
+                                    });
+                                }
                             });
                         }
                     });
