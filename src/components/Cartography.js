@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 const Cartography = ({ element, onDataFetched }) => {
     useEffect(() => {
@@ -10,9 +10,7 @@ const Cartography = ({ element, onDataFetched }) => {
                 }
 
                 const data = await response.json();
-                console.log("Datos de la API:", data); // Verifica la estructura completa de los datos
 
-                // Extrae y convierte todas las coordenadas de los polígonos si existen
                 let coordinatesArray = [];
                 if (data.features && data.features.length > 0) {
                     //Iterar sobre cada polígono
@@ -48,13 +46,13 @@ const Cartography = ({ element, onDataFetched }) => {
                     if (coordinatesArray.length > 0) {
                         onDataFetched(coordinatesArray); // Envía las coordenadas al componente padre
                     } else {
-                        console.warn("No se encontraron coordenadas válidas en los datos de cartografía.");
+                        console.error("No valid coordinates were found in the cartography data.");
                     }
                 } else {
-                    console.error("La estructura de datos no es la esperada.");
+                    console.error("The data structure is not as expected.");
                 }
             } catch (error) {
-                console.error("Error fetching cartography data:", error);
+                console.error("Error fetching cartography data: ", error);
             }
         };
         if (element) {
@@ -62,7 +60,7 @@ const Cartography = ({ element, onDataFetched }) => {
         }
     }, [element, onDataFetched]);
 
-    return null; // Este componente no renderiza nada visual
+    return null;
 };
 
 export default Cartography;
