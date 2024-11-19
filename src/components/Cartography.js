@@ -4,7 +4,8 @@ const Cartography = ({ element, onDataFetched }) => {
     useEffect(() => {
         const fetchCartographyData = async () => {
             try {
-                const response = await fetch(`https://web-production-8a4b.up.railway.app/api/cartography?element=${encodeURIComponent(element)}`);
+                const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/cartography?element=${encodeURIComponent(element)}`);
+                // const response = await fetch(`http://localhost:3000/api/cartography?element=${encodeURIComponent(element)}`);
                 if (!response.ok) {
                     throw new Error("Error fetching cartography data");
                 }
