@@ -1,5 +1,5 @@
 import React from "react";
-import { MapContainer, TileLayer, Popup, Polygon } from "react-leaflet";
+import { MapContainer, TileLayer, Popup, Polygon, Marker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
@@ -16,25 +16,18 @@ const elementColors = {
     "Island": "#228b22",
     "Coral fringe": "#e74c3c",
     "Ebb-flood delta": "#20b2aa",
-    "Delta": "#9acd32"
+    "Delta": "#9acd32",
 };
 
-// const createCustomIcon = (color) => {
-//     return new L.DivIcon({
-//         html: `
-//             <div style="width: 30px; height: 30px; border: 3px solid ${color}; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-//                 <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" style="width: 20px; height: 20px;" />
-//             </div>`,
-//         className: "",
-//         iconSize: [20, 20], // Tamaño del icono
-//         iconAnchor: [10, 10] // Posición del ancla
-//     });
-// };
+const pinIcon = new L.Icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+    iconSize: [20, 20],
+    iconAnchor: [10, 20],
+    popupAnchor: [0, -15] 
+});
 
 const Map = ({ geoData, element }) => {
     console.log("geoData recibido en Map:", geoData); // Verifica la estructura de geoData
-
-    const color = elementColors[element] || "#000000";
 
     return (
         <MapContainer
@@ -48,47 +41,75 @@ const Map = ({ geoData, element }) => {
             />
 
 
-            {/* Renderizar cada polígono en `geoData` */}
+            {/* Renderizar los datos de geoData */}
             {geoData && geoData.length > 0 && geoData.map((feature, index) => {
-                const { coordinates, element } = feature;
+                if (feature.element) {
+                    const { coordinates, element } = feature;
 
-                if (!coordinates || coordinates.length === 0) {
-                    return null; // Si no hay coordenadas, no renderizar nada
+                    if (!coordinates || coordinates.length === 0) {
+                        return null; // Sin coordenadas, no renderizar 
+                    }
+
+                    const color = elementColors[element] || "#000000"; // Obtener el color según el elemento
+
+                    // Calcular el centroide del polígono
+                    const latSum = coordinates.reduce((acc, point) => acc + point[0], 0);
+                    const lonSum = coordinates.reduce((acc, point) => acc + point[1], 0);
+                    const centroid = [latSum / coordinates.length, lonSum / coordinates.length];
+
+                    return (
+                        <React.Fragment key={index}>
+                            {/* Renderizar el Polígono */}
+                            <Polygon
+                                pathOptions={{ color: color, fillColor: color, fillOpacity: 0.4 }} 
+                                positions={coordinates} 
+                            >
+                                <Popup>
+                                    Elemento: {element}
+                                </Popup>
+                            </Polygon>
+
+                            {/* Añadir un marcador en el centro del polígono */}
+                            <Marker
+                                position={centroid}
+                                icon={pinIcon}
+                            >
+                                <Popup>
+                                    Elemento: {element} <br />
+                                    Coordenadas: [{coordinates[0]}, {coordinates[1]}]
+                                </Popup>
+                            </Marker>
+                        </React.Fragment>
+                    );
                 }
 
-                const color = elementColors[element] || "#000000"; // Obtener el color según el elemento
+                else if (feature.name) {
+                    const { name, d50, coordinates } = feature;
 
-                return (
-                    <Polygon
-                        key={index}
-                        pathOptions={{ color: color, fillColor: color, fillOpacity: 0.4 }} // Definir color y opacidad del polígono
-                        positions={coordinates} // Asignar las coordenadas para dibujar el polígono
-                    >
-                        <Popup>
-                            Elemento: {element} <br />
-                            Coordenades: {coordinates}
-                        </Popup>
-                    </Polygon>
-                );
+                    if (!coordinates || coordinates.length === 0) {
+                        return null; 
+                    }
+
+                    return (
+                        <React.Fragment key={index}>
+                            {/* Añadir un marcador en el objeto */}
+                            <Marker
+                                position={[coordinates[0], coordinates[1]]}
+                                icon={pinIcon}
+                            >
+                                <Popup>
+                                    Name: {name} <br />
+                                    D50: {d50} <br />
+                                    Coordenadas: [{coordinates[0]}, {coordinates[1]}]
+                                </Popup>
+                            </Marker>
+                        </React.Fragment>
+                    )
+                }
+                return null;
             })}
         </MapContainer>
     );
 };
 
 export default Map;
-
-
-
-// {/* Renderizar cada polígono en el MultiPolygon solo si `geoData` tiene la estructura correcta */}
-// {geoData && geoData.length > 0 && geoData.map((coordinate, index) => (
-//     <Marker
-//         key={index}
-//         position={coordinate} // Ya en formato [latitud, longitud]
-//         icon={createCustomIcon(color)}
-//     >
-//         <Popup>
-//             Element: {element} <br />
-//             Coordenadas: [{coordinate[0]}, {coordinate[1]}]
-//         </Popup>
-//     </Marker>
-// ))}
