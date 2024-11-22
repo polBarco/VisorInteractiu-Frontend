@@ -1,3 +1,4 @@
+import { type } from "@testing-library/user-event/dist/type";
 import { useEffect } from "react"
 
 const D50 = ({ element, onDataFetched }) => {
@@ -27,6 +28,7 @@ const D50 = ({ element, onDataFetched }) => {
                                     typeof pointCoordinates[1] === "number"
                                 ) {
                                     coordinatesArray.push({
+                                        type: "D50Collection",
                                         name: feature.properties.name,
                                         d50: feature.properties.d50,
                                         coordinates: [pointCoordinates[1], pointCoordinates[0]],

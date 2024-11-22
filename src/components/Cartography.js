@@ -1,3 +1,4 @@
+import { type } from "@testing-library/user-event/dist/type";
 import { useEffect } from "react";
 
 const Cartography = ({ element, onDataFetched }) => {
@@ -14,30 +15,34 @@ const Cartography = ({ element, onDataFetched }) => {
 
                 let coordinatesArray = [];
                 if (data.features && data.features.length > 0) {
-                    //Iterar sobre cada polígono
+                    /* Iterate the polygons */
                     data.features.forEach((feature) => {
                         if (feature.geometry && feature.geometry.coordinates) {
                             const multipolygonCoordinates = feature.geometry.coordinates;
 
-                            // Procesa los polígonos
+                            /* Process the polygons */
                             multipolygonCoordinates.forEach((polygonCoordinates) => {
                                 let polygon = [];
                                 polygonCoordinates.forEach((coordinate) => {
-                                    // Verifica que cada `coordinate` sea un array con dos valores (longitud, latitud)
                                     if (
                                         Array.isArray(coordinate) &&
                                         coordinate.length === 2 &&
                                         typeof coordinate[0] === "number" &&
                                         typeof coordinate[1] === "number"
                                     ) {
-                                        polygon.push([coordinate[1], coordinate[0]]); // Convertir [longitud, latitud] a [latitud, longitud]
+                                        polygon.push([coordinate[1], coordinate[0]]); // Convert [longitude, latitude] to [latitude, longitude]
                                     } else {
                                         console.warn("Punto inválido encontrado:", coordinate);
                                     }
                                 });
                                 if (polygon.length > 0) {
                                     coordinatesArray.push({
+                                        type: "CartographyCollection",
                                         element: feature.properties.element,
+                                        area_m2: feature.properties.area_m2,
+                                        area_km2: feature.properties.area_km2,
+                                        longitud: feature.properties.longitud,
+                                        perimet_km: feature.properties.perimet_km,
                                         coordinates: polygon,
                                     });
                                 }
@@ -45,7 +50,7 @@ const Cartography = ({ element, onDataFetched }) => {
                         }
                     });
                     if (coordinatesArray.length > 0) {
-                        onDataFetched(coordinatesArray); // Envía las coordenadas al componente padre
+                        onDataFetched(coordinatesArray); // Send the coordinates to the parent component
                     } else {
                         console.error("No valid coordinates were found in the cartography data.");
                     }
