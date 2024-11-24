@@ -4,7 +4,8 @@ const Era5Node = ({element, onDataFetched}) => {
     useEffect(() => {
         const fetchEra5NodeData = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/cyclone_era5_node/all`);
+                // const response = await fetch(`http://localhost:8000/api/cyclone_era5_node/all`);
+                const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/cyclone_era5_node/all`);
                 if (!response.ok) {
                     throw new Error("Error fetching era5 node data");
                 }
