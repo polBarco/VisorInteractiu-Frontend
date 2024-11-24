@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Popup, Polygon, Marker, Polyline, useMapEvents
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./Map.css";
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
 const elementColors = {
@@ -17,14 +18,24 @@ const elementColors = {
     "Coral fringe": "#e74c3c",
     "Ebb-flood delta": "#20b2aa",
     "Delta": "#9acd32",
+
+    "Barra rompientes": "#ff4500",
+    "DB rompientes": "#ffd700",
+    "Barra seca": "#1e90ff",
+    "DB seca": "#8b4513",
+
+    "LitoralCellsCollection": "#fc0505",
+    "SedimentTransportCollection": "#1f77b4",
+    "Era5NodeCollection": "#ff7f0e",
 };
 
-const pinIcon = new L.Icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-    iconSize: [20, 20],
-    iconAnchor: [10, 20],
-    popupAnchor: [0, -15] 
-});
+const getCustomIcon = (color) => {
+    return new L.DivIcon({
+        html: `<i class="fa-solid fa-location-dot" style="font-size: 24px; color: ${color}; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;"></i>`,
+        className: 'custom-div-icon',
+        iconSize: [10, 10],
+    });
+};
 
 const Map = ({ geoData, element }) => {
     console.log("geoData recibido en Map:", geoData); 
@@ -64,9 +75,8 @@ const Map = ({ geoData, element }) => {
                 }
 
                 if (type === "CartographyCollection") {
-
                     const { area_m2, area_km2, longitud, perimet_km } = feature;
-                    const color = elementColors[element] || "#000000"; 
+                    const color = elementColors[element]; 
 
                     /* Shuffle the data randomly */
                     if (shuffledGeoDataRef.current.length === 0) {
@@ -127,7 +137,7 @@ const Map = ({ geoData, element }) => {
                             {shouldShowMarker && (
                                 <Marker
                                     position={centroid}
-                                    icon={pinIcon}
+                                    icon={getCustomIcon(color)}
                                 >
                                     <Popup>
                                         <strong>Element:</strong> {element} <br />
@@ -145,12 +155,14 @@ const Map = ({ geoData, element }) => {
 
                 else if (type === "D50Collection") {
                     const { name, d50 } = feature;
+
+                    const color = elementColors[name];
     
                     return (
                         <React.Fragment key={index}>
                             <Marker
                                 position={[coordinates[0], coordinates[1]]}
-                                icon={pinIcon}
+                                icon={getCustomIcon(color)}
                             >
                                 <Popup>
                                     <strong>Name:</strong> {name} <br />
@@ -190,7 +202,7 @@ const Map = ({ geoData, element }) => {
                                         <Marker
                                             key={`start-${index}`}
                                             position={[lat, lng]}
-                                            icon={pinIcon}
+                                            icon={getCustomIcon(elementColors[type])}
                                         >
                                             <Popup>
                                                 <strong>Name:</strong> {name} <br />
@@ -209,7 +221,7 @@ const Map = ({ geoData, element }) => {
                                         <Marker
                                             key={`end-${index}`}
                                             position={[lat, lng]}
-                                            icon={pinIcon}
+                                            icon={getCustomIcon(elementColors[type])}
                                         >
                                             <Popup>
                                                 <strong>Name:</strong> {name} <br />
@@ -227,6 +239,45 @@ const Map = ({ geoData, element }) => {
                         </React.Fragment>
                     );
                 }
+
+                else if (type === "SedimentTransportCollection") {
+                    const { id, transport, percent } = feature;
+    
+                    return (
+                        <React.Fragment key={index}>
+                            <Marker
+                                position={[coordinates[0], coordinates[1]]}
+                                icon={getCustomIcon(elementColors[type])}
+                            >
+                                <Popup>
+                                    <strong>ID:</strong> {id} <br />
+                                    <strong>Transport</strong> {transport} <br />
+                                    <strong>Percent</strong> {percent} <br />
+                                    <strong>Coordinates:</strong> [{coordinates[0]}, {coordinates[1]}]
+                                </Popup>
+                            </Marker>
+                        </React.Fragment>
+                    )
+                }
+
+                else if (type === "Era5NodeCollection") {
+                    const { id } = feature;
+                
+                    return (
+                        <React.Fragment key={index}>
+                            <Marker
+                                position={[coordinates[0], coordinates[1]]}
+                                icon={getCustomIcon(elementColors[type])} 
+                            >
+                                <Popup>
+                                    <strong>ID:</strong> {id} <br />
+                                    <strong>Coordinates:</strong> [{coordinates[0]}, {coordinates[1]}]
+                                </Popup>
+                            </Marker>
+                        </React.Fragment>
+                    );
+                }
+
             })}
         </MapContainer>
     );

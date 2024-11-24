@@ -5,6 +5,8 @@ import Cartography from "./Cartography";
 import Map from "./Map";
 import D50 from "./d50";
 import LitoralCells from "./LitoralCells";
+import SedimentTransport from "./SedimentTransport";
+import Era5Node from "./Era5Node";
 import "./Header.css";
 
 const Header = () => {
@@ -13,6 +15,7 @@ const Header = () => {
     const [selectedElement, setSelectedElement] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
     const [cachedData, setCacheData] = useState({});
+
     const prevSelectedElement = useRef(null);
     const prevSelectedType = useRef(null);
 
@@ -73,6 +76,7 @@ const Header = () => {
                                     ))}
                                 </div>
                             </div>
+
                             <div className="dropdown-menu-item">
                                 d50 <FontAwesomeIcon icon={faChevronRight} />
                                 <div className="dropdown-submenu">
@@ -87,6 +91,7 @@ const Header = () => {
                                     ))}
                                 </div>
                             </div>
+
                             <div className="dropdown-menu-item">
                                 Litoral cells <FontAwesomeIcon icon={faChevronRight} />
                                 <div className="dropdown-submenu">
@@ -101,6 +106,26 @@ const Header = () => {
                                     ))}
                                 </div>
                             </div>
+
+                            <div className="dropdown-menu-item">
+                                Cyclone <FontAwesomeIcon icon={faChevronRight} />
+                                <div className="dropdown-submenu">
+                                    {["Sediment transport", "Era 5 node"].map((option, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() =>
+                                                option === "Sediment transport"
+                                                    ? handleOptionClick("sediment_transport", option)
+                                                    : handleOptionClick("era5_node", option)
+                                            }
+                                            className="dropdown-submenu-item"
+                                        >
+                                            {option}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                         </div>
                     )}
                 </div>
@@ -116,6 +141,10 @@ const Header = () => {
                         <D50 element={selectedElement} onDataFetched={handleDataFetched} />
                     ) : selectedType === "litoral_cells" ? (
                         <LitoralCells element={selectedElement} onDataFetched={handleDataFetched} />
+                    ) : selectedType === "sediment_transport" ? (
+                        <SedimentTransport element={selectedElement} onDataFetched={handleDataFetched} />
+                    ) : selectedType === "era5_node" ? (
+                        <Era5Node element={selectedElement} onDataFetched={handleDataFetched} />
                     ) : null
                 )
             }
