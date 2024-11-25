@@ -1,7 +1,6 @@
 .map-container {
-    height: 90vh;
     width: 100%;
-    position: relative;
+    height: calc(100vh - 60px); /* Resta el espacio del header */
 }
 
 .map-background-pane {
