@@ -4,7 +4,7 @@ const SedimentTransport = ({element, onDataFetched}) => {
     useEffect(() => {
         const fetchSedimentTransportData = async () => {
             try {
-                //const response = await fetch(`http://localhost:8000/api/cyclone_sediment_transport/all`);
+                // const response = await fetch(`http://localhost:8000/api/cyclone_sediment_transport/all`);
                 const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/cyclone_sediment_transport/all`);
                 if (!response.ok) {
                     throw new Error("Error fetching sediment transport data");

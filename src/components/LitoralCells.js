@@ -23,10 +23,8 @@ const LitoralCells = ({ element, onDataFetched }) => {
                         ) {
                             const multilinestringCoordinates = feature.geometry.coordinates;
 
-                            // Iterar sobre cada línea dentro del MultiLineString
                             multilinestringCoordinates.forEach((lineCoordinates) => {
                                 if (Array.isArray(lineCoordinates)) {
-                                    // Crear un nuevo array para almacenar todas las coordenadas de esta línea
                                     let lineArray = lineCoordinates.map((coordinate) => {
                                         if (
                                             Array.isArray(coordinate) &&
@@ -34,7 +32,7 @@ const LitoralCells = ({ element, onDataFetched }) => {
                                             typeof coordinate[0] === "number" &&
                                             typeof coordinate[1] === "number"
                                         ) {
-                                            return [coordinate[1], coordinate[0]]; // Convertir [longitud, latitud] a [latitud, longitud]
+                                            return [coordinate[1], coordinate[0]]; 
                                         } else {
                                             console.warn("Punto inválido encontrado:", coordinate);
                                             return null;
@@ -52,7 +50,7 @@ const LitoralCells = ({ element, onDataFetched }) => {
                                             coord_xini: feature.properties.coord_xini,
                                             coord_yini: feature.properties.coord_yini,
                                             par_impar: feature.properties.par_impar,
-                                            coordinates: lineArray, // Aquí guardamos la línea completa
+                                            coordinates: lineArray, 
                                         });
                                     }
                                 }

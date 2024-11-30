@@ -1,12 +1,12 @@
 .map-container {
     width: 100%;
-    height: calc(100vh - 60px); /* Resta el espacio del header */
+    height: calc(100vh - 60px); 
 }
 
 .map-background-pane {
-    z-index: 0; /* Pane del fondo */
+    z-index: 0; 
 }
 
 .map-geojson-pane {
-    z-index: 500; /* Pane para la capa GeoJSON */
+    z-index: 500; 
 }

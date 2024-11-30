@@ -7,11 +7,12 @@ import D50 from "./d50";
 import LitoralCells from "./LitoralCells";
 import SedimentTransport from "./SedimentTransport";
 import Era5Node from "./Era5Node";
+import Hurricane from "./Hurricane";
 import "./Header.css";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [openSubmenu, setOpenSubmenu] = useState(null); // State to track open submenu
+    const [openSubmenu, setOpenSubmenu] = useState(null); 
     const [geoData, setGeoData] = useState(null);
     const [selectedElement, setSelectedElement] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
@@ -39,7 +40,16 @@ const Header = () => {
             }
         }
         setIsMenuOpen(false);
-        setOpenSubmenu(null); // Close submenu after selection
+        setOpenSubmenu(null); 
+    };
+
+    const handleSend = (data) => {
+        console.log("Hurricane GeoJSON data received:", data);
+        setGeoData(data); 
+        setSelectedElement("Hurricane"); 
+        setSelectedType("hurricane");
+        setIsMenuOpen(false);
+        setOpenSubmenu(null); 
     };
 
     const handleDataFetched = (data) => {
@@ -164,6 +174,20 @@ const Header = () => {
                                     </div>
                                 )}
                             </div>
+
+                            <div
+                                className="dropdown-menu-item"
+                                onClick={() => toggleSubmenu("hurricane")}
+                            >
+                                Hurricane <FontAwesomeIcon icon={faChevronRight} />
+                                {openSubmenu === "hurricane" && (
+                                    <Hurricane
+                                        onClose={() => toggleSubmenu(null)} 
+                                        onSelect={(type, year) => handleSend(type, year)}
+                                    />
+                                )}
+                            </div>
+
                         </div>
                     )}
                 </div>
