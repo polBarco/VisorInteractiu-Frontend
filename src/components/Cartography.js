@@ -1,4 +1,3 @@
-import { type } from "@testing-library/user-event/dist/type";
 import { useEffect } from "react";
 
 const Cartography = ({ element, onDataFetched }) => {
@@ -70,31 +69,3 @@ const Cartography = ({ element, onDataFetched }) => {
 };
 
 export default Cartography;
-
-
-
-
-// if (
-//     data.features &&
-//     data.features[0] &&
-//     data.features[0].geometry &&
-//     data.features[0].geometry.coordinates
-// ) {
-//     const multipolygonCoordinates = data.features[0].geometry.coordinates;
-
-//     // Procesa los polígonos (en este caso, es un solo polígono)
-//     multipolygonCoordinates.forEach((polygon) => {
-//         polygon.forEach((coordinate) => {
-//             // Verifica que cada `coordinate` sea un array con dos valores (longitud, latitud)
-//             if (
-//                 Array.isArray(coordinate) &&
-//                 coordinate.length === 2 &&
-//                 typeof coordinate[0] === "number" &&
-//                 typeof coordinate[1] === "number"
-//             ) {
-//                 coordinatesArray.push([coordinate[1], coordinate[0]]); // Convertir [longitud, latitud] a [latitud, longitud]
-//             } else {
-//                 console.warn("Punto inválido encontrado:", coordinate);
-//             }
-//         });
-//     });

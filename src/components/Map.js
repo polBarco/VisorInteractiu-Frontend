@@ -42,6 +42,7 @@ const Map = ({ geoData, element }) => {
 
     const [zoomLevel, setZoomLevel] = useState(6); // Initial zoom level
     const shuffledGeoDataRef = useRef([]); // Ref to store shuffled geoData
+    const uniqueHurricaneColors = useRef({});  // Map to assign unique colors for hurricane
 
     /* Update zoom level */
     function ZoomHandler() {
@@ -196,7 +197,7 @@ const Map = ({ geoData, element }) => {
                             {coordinates.map((point, pointIndex) => {
                                 const [lat, lng] = point;
 
-                                //Marker initial coordinate
+                                /* Marker initial coordinate */
                                 if (pointIndex === 0) {
                                     return (
                                         <Marker
@@ -215,7 +216,7 @@ const Map = ({ geoData, element }) => {
                                     );
                                 }
 
-                                // Maarker final coordinate
+                                /* Marker final coordinate */
                                 if (pointIndex === coordinates.length - 1) {
                                     return (
                                         <Marker
@@ -274,6 +275,36 @@ const Map = ({ geoData, element }) => {
                                     <strong>Coordinates:</strong> [{coordinates[0]}, {coordinates[1]}]
                                 </Popup>
                             </Marker>
+                        </React.Fragment>
+                    );
+                }
+
+                else if (type === "HurricaneCollection") {
+                    const { name, year, hurricaneType } = feature;
+
+                    const colorPalette = ["#ff0000", "#02ba24", "#0000ff", "#800080", "#ffa500"];
+                
+                    /* Assign a unique color to each hurricane based on its name */
+                    if (!uniqueHurricaneColors.current[name]) {
+                        const currentLength = Object.keys(uniqueHurricaneColors.current).length;
+                        uniqueHurricaneColors.current[name] = colorPalette[currentLength % colorPalette.length];
+                    }
+                
+                    return (
+                        <React.Fragment key={index}>
+                            <Polyline
+                                pathOptions={{
+                                    color: uniqueHurricaneColors.current[name], 
+                                    fillOpacity: 0.6,
+                                }}
+                                positions={coordinates}
+                            >
+                                <Popup>
+                                    <strong>Name:</strong> {name} <br />
+                                    <strong>Year:</strong> {year} <br />
+                                    <strong>Type:</strong> {hurricaneType} <br />
+                                </Popup>
+                            </Polyline>
                         </React.Fragment>
                     );
                 }

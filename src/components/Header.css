@@ -1,8 +1,7 @@
-/* General header styles */
 .header {
     display: flex;
     align-items: center;
-    justify-content: center; /* Centrar el contenido horizontalmente */
+    justify-content: center;
     background-color: #333;
     color: white;
     padding: 10px 20px;
@@ -13,13 +12,12 @@
 
 .app-title {
     position: absolute;
-    left: 20px; /* Mantener el título a la izquierda */
+    left: 20px; 
     font-size: 18px;
     font-weight: bold;
     margin: 0;
 }
 
-/* Dropdown container styles */
 .dropdown-container {
     position: relative;
 }
@@ -44,8 +42,8 @@
 .dropdown-menu {
     position: absolute;
     top: 100%;
-    left: 50%; /* Centrar horizontalmente */
-    transform: translateX(-50%); /* Ajustar para centrar completamente */
+    left: 50%; 
+    transform: translateX(-50%);
     background-color: #444;
     border-radius: 5px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
@@ -69,13 +67,15 @@
     background-color: #555;
 }
 
-/* Submenu styles */
 .dropdown-submenu {
     background-color: #555;
     margin-top: 5px;
     padding: 10px 0;
     border-radius: 5px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    white-space: nowrap; 
+    overflow: hidden; 
+    min-width: max-content;
 }
 
 .dropdown-submenu-item {
@@ -90,7 +90,6 @@
     background-color: #666;
 }
 
-/* Adjusting font-awesome icons */
 .dropdown-menu-item .fa-chevron-right {
     font-size: 12px;
     margin-left: 10px;
