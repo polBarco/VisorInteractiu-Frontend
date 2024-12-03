@@ -57,8 +57,8 @@ const Hurricane = ({ onClose, onSelect }) => {
     const handleSend = async () => {
         if (selectedType && selectedYear) {
             try {
-                const response = await fetch(`http://localhost:8000/api/hurricane/${selectedType}/${selectedYear}`);
-                // const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/hurricane/${selectedType}/${selectedYear}`);
+                //const response = await fetch(`http://localhost:8000/api/hurricane/${selectedType}/${selectedYear}`);
+                const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/hurricane/${selectedType}/${selectedYear}`);
                 if (!response.ok) {
                     throw new Error("Error fetching hurricane data");
                 }

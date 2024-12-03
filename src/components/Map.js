@@ -27,6 +27,7 @@ const elementColors = {
     "LitoralCellsCollection": "#fc0505",
     "SedimentTransportCollection": "#1f77b4",
     "Era5NodeCollection": "#ff7f0e",
+    "RiverCollection": "#0000FF",
 };
 
 const getCustomIcon = (color) => {
@@ -308,6 +309,31 @@ const Map = ({ geoData, element }) => {
                         </React.Fragment>
                     );
                 }
+
+                else if (type === "RiverCollection") {
+                    const { arcid, up_cells } = feature; 
+
+                    return (
+                        <React.Fragment key={index}>
+                            <Polyline
+                                pathOptions={{
+                                    color: elementColors[type] || "blue",  
+                                    fillOpacity: 0.6,
+                                }}
+                                positions={coordinates}
+                            >
+                                <Popup>
+                                    <strong>Arc ID:</strong> {arcid} <br />
+                                    <strong>Up Cells:</strong> {up_cells} 
+                                </Popup>
+                            </Polyline>
+                        </React.Fragment>
+                    );
+                }
+                    else {
+                        console.warn("Tipo de elemento desconocido:", type);
+                        return null;
+                    }
 
             })}
         </MapContainer>
