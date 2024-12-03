@@ -8,6 +8,7 @@ import LitoralCells from "./LitoralCells";
 import SedimentTransport from "./SedimentTransport";
 import Era5Node from "./Era5Node";
 import Hurricane from "./Hurricane";
+import Rivers from "./Rivers";
 import "./Header.css";
 
 const Header = () => {
@@ -50,6 +51,15 @@ const Header = () => {
         setSelectedType("hurricane");
         setIsMenuOpen(false);
         setOpenSubmenu(null); 
+    };
+
+    const handleRiversData = (data) => {
+        console.log("Rivers GeoJSON data received::", data);
+        setGeoData(data);
+        setSelectedElement("Rivers");
+        setSelectedType("RiverCollection");
+        setIsMenuOpen(false); 
+        setOpenSubmenu(null);
     };
 
     const handleDataFetched = (data) => {
@@ -188,6 +198,19 @@ const Header = () => {
                                 )}
                             </div>
 
+                            <div 
+                                className="dropdown-menu-item"
+                                onClick={() => toggleSubmenu("rivers")}
+                            >
+                                Rivers <FontAwesomeIcon icon={faChevronRight} />
+                                {openSubmenu === "rivers" && (
+                                    <Rivers 
+                                        onClose={() => toggleSubmenu(null)}
+                                        onDataFetched={handleRiversData} 
+                                    />
+                                )}
+                            </div>
+                                                     
                         </div>
                     )}
                 </div>
