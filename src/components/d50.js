@@ -5,8 +5,8 @@ const D50 = ({ element, onDataFetched }) => {
     useEffect(() => {
         const fetchD50Data = async () => {
             try {
-                //const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/d50?name=${encodeURIComponent(element)}`);
-                const response = await fetch(`http://localhost:8000/api/d50?name=${encodeURIComponent(element)}`);
+                const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/d50?name=${encodeURIComponent(element)}`);
+                //const response = await fetch(`http://localhost:8000/api/d50?name=${encodeURIComponent(element)}`);
                 if (!response.ok) {
                     throw new Error("Error fetching d50 data");
                 }
