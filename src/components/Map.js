@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { MapContainer, TileLayer, Popup, Polygon, Marker, Polyline, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "./Map.css";
+import "./css/Map.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 
@@ -147,7 +147,14 @@ const Map = ({ geoData, element }) => {
                                         <strong>Area (km2):</strong> {area_km2} <br />
                                         <strong>Longitude:</strong> {longitud} <br />
                                         <strong>Perimeter (km):</strong> {perimet_km} <br />
-                                        <strong>Coordinates:</strong> [{coordinates[0]}, {coordinates[1]}]
+                                        <strong>Coordinates:</strong> 
+                                        <ul>
+                                            {coordinates.map((coord, index) => (
+                                                <li key={index}>
+                                                    [{coord[0].toFixed(6)}, {coord[1].toFixed(6)}]
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </Popup>
                                 </Marker>
                             )}
@@ -169,7 +176,10 @@ const Map = ({ geoData, element }) => {
                                 <Popup>
                                     <strong>Name:</strong> {name} <br />
                                     <strong>D50</strong> {d50} <br />
-                                    <strong>Coordinates:</strong> [{coordinates[0]}, {coordinates[1]}]
+                                    <strong>Coordinates:</strong> 
+                                    <ul>
+                                        <li>[{coordinates[0].toFixed(6)}, {coordinates[1].toFixed(6)}]</li>
+                                    </ul>
                                 </Popup>
                             </Marker>
                         </React.Fragment>
@@ -189,9 +199,15 @@ const Map = ({ geoData, element }) => {
                                     <strong>Name:</strong> {name} <br />
                                     <strong>Length (m):</strong> {length} <br />
                                     <strong>Length (km):</strong> {length_km} <br />
-                                    <strong>Initial Coordinate:</strong> [{coord_xini}, {coord_yini}] <br />
-                                    <strong>Final Coordinate:</strong> [{coord_xfin}, {coord_yfin}] <br />
                                     <strong>Par_impar:</strong> {par_impar} <br />
+                                    <strong>Initial Coordinate:</strong> 
+                                    <ul>
+                                        <li>[{coord_xini.toFixed(6)}, {coord_yini.toFixed(6)}]</li>
+                                    </ul>
+                                    <strong>Final Coordinate:</strong> 
+                                    <ul>
+                                        <li>[{coord_xfin.toFixed(6)}, {coord_yfin.toFixed(6)}]</li>
+                                    </ul>
                                 </Popup>
                             </Polyline>
 
@@ -210,8 +226,11 @@ const Map = ({ geoData, element }) => {
                                                 <strong>Name:</strong> {name} <br />
                                                 <strong>Length (m):</strong> {length} <br />
                                                 <strong>Length (km):</strong>{length_km} <br />
-                                                <strong>Initial coordinate:</strong> [{lat}, {lng}] <br />
-                                                <strong>Par_impar:</strong> {par_impar} 
+                                                <strong>Par_impar:</strong> {par_impar} <br />
+                                                <strong>Initial coordinate:</strong> 
+                                                <ul>
+                                                    <li>[{lat.toFixed(6)}, {lng.toFixed(6)}]</li>
+                                                </ul>
                                             </Popup>
                                         </Marker>
                                     );
@@ -229,8 +248,11 @@ const Map = ({ geoData, element }) => {
                                                 <strong>Name:</strong> {name} <br />
                                                 <strong>Length (m):</strong> {length} <br />
                                                 <strong>Length (km):</strong>{length_km} <br />
-                                                <strong>Final coordinate:</strong> [{lat}, {lng}] <br />
-                                                <strong>Par_impar:</strong> {par_impar} 
+                                                <strong>Par_impar:</strong> {par_impar} <br />
+                                                <strong>Final coordinate:</strong>
+                                                <ul>
+                                                    <li>[{lat.toFixed(6)}, {lng.toFixed(6)}]</li>
+                                                </ul>
                                             </Popup>
                                         </Marker>
                                     );
@@ -255,7 +277,10 @@ const Map = ({ geoData, element }) => {
                                     <strong>ID:</strong> {id} <br />
                                     <strong>Transport</strong> {transport} <br />
                                     <strong>Percent</strong> {percent} <br />
-                                    <strong>Coordinates:</strong> [{coordinates[0]}, {coordinates[1]}]
+                                    <strong>Coordinates:</strong>
+                                    <ul>
+                                        <li>[{coordinates[0].toFixed(6)}, {coordinates[1].toFixed(6)}]</li>
+                                    </ul>
                                 </Popup>
                             </Marker>
                         </React.Fragment>
@@ -273,7 +298,10 @@ const Map = ({ geoData, element }) => {
                             >
                                 <Popup>
                                     <strong>ID:</strong> {id} <br />
-                                    <strong>Coordinates:</strong> [{coordinates[0]}, {coordinates[1]}]
+                                    <strong>Coordinates:</strong> 
+                                    <ul>
+                                        <li>[{coordinates[0].toFixed(6)}, {coordinates[1].toFixed(6)}]</li>
+                                    </ul>
                                 </Popup>
                             </Marker>
                         </React.Fragment>

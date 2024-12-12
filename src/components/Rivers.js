@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./css/Rivers.css";
 
 const Rivers = ({ onClose, onDataFetched }) => {
     const [page, setPage] = useState(1);

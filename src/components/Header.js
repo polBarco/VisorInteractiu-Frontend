@@ -9,7 +9,7 @@ import SedimentTransport from "./SedimentTransport";
 import Era5Node from "./Era5Node";
 import Hurricane from "./Hurricane";
 import Rivers from "./Rivers";
-import "./Header.css";
+import "./css/Header.css";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -115,52 +115,6 @@ const Header = () => {
 
                             <div
                                 className="dropdown-menu-item"
-                                onClick={() => toggleSubmenu("d50")}
-                            >
-                                D50 <FontAwesomeIcon icon={faChevronRight} />
-                                {openSubmenu === "d50" && (
-                                    <div className="dropdown-submenu">
-                                        {["Barra rompientes", "Barra seca", "DB rompientes", "DB seca"].map((option, index) => (
-                                            <div
-                                                key={index}
-                                                onClick={() =>
-                                                    handleOptionClick("d50", option)
-                                                }
-                                                className="dropdown-submenu-item"
-                                            >
-                                                {option}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div
-                                className="dropdown-menu-item"
-                                onClick={() => toggleSubmenu("litoral_cells")}
-                            >
-                                Litoral Cells <FontAwesomeIcon icon={faChevronRight} />
-                                {openSubmenu === "litoral_cells" && (
-                                    <div className="dropdown-submenu">
-                                        {["Lit_0", "Lit_1", "Lit_2", "Lit_3", "Lit_4", 
-                                            "Lit_5", "Lit_6", "Lit_7", "Lit_8", "Lit_9",
-                                        ].map((option, index) => (
-                                            <div
-                                                key={index}
-                                                onClick={() =>
-                                                    handleOptionClick("litoral_cells", option)
-                                                }
-                                                className="dropdown-submenu-item"
-                                            >
-                                                {option}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div
-                                className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("cyclone")}
                             >
                                 Cyclone <FontAwesomeIcon icon={faChevronRight} />
@@ -187,6 +141,28 @@ const Header = () => {
 
                             <div
                                 className="dropdown-menu-item"
+                                onClick={() => toggleSubmenu("d50")}
+                            >
+                                D50 <FontAwesomeIcon icon={faChevronRight} />
+                                {openSubmenu === "d50" && (
+                                    <div className="dropdown-submenu">
+                                        {["Barra rompientes", "Barra seca", "DB rompientes", "DB seca"].map((option, index) => (
+                                            <div
+                                                key={index}
+                                                onClick={() =>
+                                                    handleOptionClick("d50", option)
+                                                }
+                                                className="dropdown-submenu-item"
+                                            >
+                                                {option}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div
+                                className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("hurricane")}
                             >
                                 Hurricane <FontAwesomeIcon icon={faChevronRight} />
@@ -195,6 +171,30 @@ const Header = () => {
                                         onClose={() => toggleSubmenu(null)} 
                                         onSelect={(type, year) => handleSend(type, year)}
                                     />
+                                )}
+                            </div>
+
+                            <div
+                                className="dropdown-menu-item"
+                                onClick={() => toggleSubmenu("litoral_cells")}
+                            >
+                                Litoral Cells <FontAwesomeIcon icon={faChevronRight} />
+                                {openSubmenu === "litoral_cells" && (
+                                    <div className="dropdown-submenu">
+                                        {["Lit_0", "Lit_1", "Lit_2", "Lit_3", "Lit_4", 
+                                            "Lit_5", "Lit_6", "Lit_7", "Lit_8", "Lit_9",
+                                        ].map((option, index) => (
+                                            <div
+                                                key={index}
+                                                onClick={() =>
+                                                    handleOptionClick("litoral_cells", option)
+                                                }
+                                                className="dropdown-submenu-item"
+                                            >
+                                                {option}
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
                             </div>
 

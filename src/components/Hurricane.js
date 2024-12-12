@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./Hurricane.css";
+import "./css/Hurricane.css";
 
 const Hurricane = ({ onClose, onSelect }) => {
     const [types, setTypes] = useState([]);
