@@ -1,0 +1,30 @@
+.map-container {
+    width: 100%;
+    height: calc(100vh - 60px); 
+}
+
+.map-background-pane {
+    z-index: 0; 
+}
+
+.map-geojson-pane {
+    z-index: 500; 
+}
+
+.custom-div-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.leaflet-container {
+    background-color: #f3f3f3;
+}
+
+.leaflet-popup-content {
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+}
