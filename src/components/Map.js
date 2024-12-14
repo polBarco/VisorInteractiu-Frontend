@@ -27,7 +27,12 @@ const elementColors = {
     "LitoralCellsCollection": "#fc0505",
     "SedimentTransportCollection": "#1f77b4",
     "Era5NodeCollection": "#ff7f0e",
-    "RiverCollection": "#0000FF",
+    "RiverCollection": "#0000ff",
+
+    "East": "#ffd700",
+    "North": "#1e90ff",
+    "South": "#32cd32",
+    "West": "#ff8c00",
 };
 
 const getCustomIcon = (color) => {
@@ -338,26 +343,48 @@ const Map = ({ geoData, element }) => {
                     );
                 }
 
-                else if (type === "RiverCollection") {
-                    const { arcid, up_cells } = feature; 
+                else if (type === "RiversMozambiqueCollection") {
+                    const { arcid, up_cells, region } = feature;
 
                     return (
                         <React.Fragment key={index}>
                             <Polyline
                                 pathOptions={{
-                                    color: elementColors[type] || "blue",  
+                                    color: elementColors[region],  
                                     fillOpacity: 0.6,
                                 }}
                                 positions={coordinates}
                             >
                                 <Popup>
                                     <strong>Arc ID:</strong> {arcid} <br />
-                                    <strong>Up Cells:</strong> {up_cells} 
+                                    <strong>Up Cells:</strong> {up_cells} <br />
+                                    <strong>Region:</strong> {region}
                                 </Popup>
                             </Polyline>
                         </React.Fragment>
                     );
                 }
+
+                // else if (type === "RiverCollection") {
+                //     const { arcid, up_cells } = feature; 
+
+                //     return (
+                //         <React.Fragment key={index}>
+                //             <Polyline
+                //                 pathOptions={{
+                //                     color: elementColors[type] || "blue",  
+                //                     fillOpacity: 0.6,
+                //                 }}
+                //                 positions={coordinates}
+                //             >
+                //                 <Popup>
+                //                     <strong>Arc ID:</strong> {arcid} <br />
+                //                     <strong>Up Cells:</strong> {up_cells} 
+                //                 </Popup>
+                //             </Polyline>
+                //         </React.Fragment>
+                //     );
+                // }
                     else {
                         console.warn("Tipo de elemento desconocido:", type);
                         return null;

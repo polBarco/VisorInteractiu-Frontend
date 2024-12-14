@@ -8,6 +8,7 @@ import LitoralCells from "./LitoralCells";
 import SedimentTransport from "./SedimentTransport";
 import Era5Node from "./Era5Node";
 import Hurricane from "./Hurricane";
+import RiversMozambique from "./RiversMozambique";
 import Rivers from "./Rivers";
 import "./css/Header.css";
 
@@ -198,7 +199,29 @@ const Header = () => {
                                 )}
                             </div>
 
-                            <div 
+                            <div
+                                className="dropdown-menu-item"
+                                onClick={() => toggleSubmenu("rivers")}
+                            >
+                                Rivers <FontAwesomeIcon icon={faChevronRight} />
+                                {openSubmenu === "rivers" && (
+                                    <div className="dropdown-submenu">
+                                        {["East", "North", "South", "West"].map((option, index) => (
+                                            <div
+                                                key={index}
+                                                onClick={() =>
+                                                    handleOptionClick("rivers", option)
+                                                }
+                                                className="dropdown-submenu-item"
+                                            >
+                                                {option}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* <div 
                                 className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("rivers")}
                             >
@@ -209,7 +232,7 @@ const Header = () => {
                                         onDataFetched={handleRiversData} 
                                     />
                                 )}
-                            </div>
+                            </div> */}
                                                      
                         </div>
                     )}
@@ -231,6 +254,8 @@ const Header = () => {
                     <SedimentTransport element={selectedElement} onDataFetched={handleDataFetched} />
                     ) : selectedType === "era5_node" ? (
                     <Era5Node element={selectedElement} onDataFetched={handleDataFetched} />
+                    ) : selectedType === "rivers" ? (
+                    <RiversMozambique element={selectedElement} onDataFetched={handleDataFetched} />
                     ) : null
                 )
             }
