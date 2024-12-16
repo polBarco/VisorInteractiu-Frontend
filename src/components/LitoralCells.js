@@ -1,78 +1,98 @@
-import { useEffect } from "react"
+import { useEffect, useState, useRef } from "react";
 
-const LitoralCells = ({ element, onDataFetched }) => {
+const LitoralCells = ({ elements, onDataFetched }) => {
+    const [cache, setCache] = useState({}); 
+    const [loading, setLoading] = useState(new Set()); 
+    const prevElementsRef = useRef([]); 
+
     useEffect(() => {
         const fetchLitoralCellsData = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/litoral_cells?name=${encodeURIComponent(element)}`);
-                //const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/litoral_cells?name=${encodeURIComponent(element)}`);
-                if (!response.ok) {
-                    throw new Error("Error fetching litoral cells data");
+                const allData = [];
+                const uncachedElements = elements.filter(
+                    (element) => !cache[element] && !loading.has(element)
+                );
+
+                /* If all elements are in the cache, we return them directly */
+                if (uncachedElements.length === 0) {
+                    const cachedData = elements.flatMap((element) => cache[element] || []);
+                    onDataFetched(cachedData);
+                    return;
                 }
 
-                const data = await response.json();
-                console.log("Datos de litoral cells:", data)
+                setLoading((prev) => new Set([...prev, ...uncachedElements])); 
 
-                let coordinatesArray = [];
-                if (data.features && data.features.length > 0) {
-                    data.features.forEach((feature) => {
-                        if (
-                            feature.geometry &&
-                            feature.geometry.coordinates &&
-                            feature.geometry.type === "MultiLineString"
-                        ) {
-                            const multilinestringCoordinates = feature.geometry.coordinates;
-
-                            multilinestringCoordinates.forEach((lineCoordinates) => {
-                                if (Array.isArray(lineCoordinates)) {
-                                    let lineArray = lineCoordinates.map((coordinate) => {
-                                        if (
-                                            Array.isArray(coordinate) &&
-                                            coordinate.length === 2 &&
-                                            typeof coordinate[0] === "number" &&
-                                            typeof coordinate[1] === "number"
-                                        ) {
-                                            return [coordinate[1], coordinate[0]]; 
-                                        } else {
-                                            console.warn("Punto inválido encontrado:", coordinate);
-                                            return null;
-                                        }
-                                    }).filter((coord) => coord !== null);
-
-                                    if (lineArray.length > 0) {
-                                        coordinatesArray.push({
-                                            type: "LitoralCellsCollection",
-                                            name: feature.properties.name,
-                                            length: feature.properties.length,
-                                            length_km: feature.properties.length_km,
-                                            coord_xfin: feature.properties.coord_xfin,
-                                            coord_yfin: feature.properties.coord_yfin,
-                                            coord_xini: feature.properties.coord_xini,
-                                            coord_yini: feature.properties.coord_yini,
-                                            par_impar: feature.properties.par_impar,
-                                            coordinates: lineArray, 
-                                        });
-                                    }
-                                }
-                            });
+                for (const element of uncachedElements) {
+                    try {
+                        const response = await fetch(`http://localhost:8000/api/litoral_cells?name=${encodeURIComponent(element)}`);
+                        // const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/litoral_cells?name=${encodeURIComponent(element)}`);
+                        if (!response.ok) {
+                            throw new Error(`Error al obtener datos de ${element}`);
                         }
-                    });
-                    if (coordinatesArray.length > 0) {
-                        onDataFetched(coordinatesArray);
-                    } else {
-                        console.error("No valid coordinates were found in the litoral cells data.");
+
+                        const data = await response.json();
+                        console.log(`Datos de Litoral Cells (${element}):`, data);
+
+                        if (data.features && data.features.length > 0) {
+                            const coordinatesArray = data.features.flatMap((feature) => {
+                                if (
+                                    feature.geometry &&
+                                    feature.geometry.type === "MultiLineString" &&
+                                    feature.geometry.coordinates
+                                ) {
+                                    return feature.geometry.coordinates.map((line) => ({
+                                        type: "LitoralCellsCollection",
+                                        name: feature.properties.name,
+                                        length: feature.properties.length,
+                                        length_km: feature.properties.length_km,
+                                        coord_xfin: feature.properties.coord_xfin,
+                                        coord_yfin: feature.properties.coord_yfin,
+                                        coord_xini: feature.properties.coord_xini,
+                                        coord_yini: feature.properties.coord_yini,
+                                        par_impar: feature.properties.par_impar,
+                                        coordinates: line.map((coordinate) => [coordinate[1], coordinate[0]]),
+                                    }));
+                                }
+                                return [];
+                            });
+
+                            if (coordinatesArray.length > 0) {
+                                setCache((prev) => ({
+                                    ...prev,
+                                    [element]: coordinatesArray,
+                                }));
+                                allData.push(...coordinatesArray);
+                            }
+                        } else {
+                            console.error(`La estructura de datos no es válida para ${element}`);
+                        }
+                    } catch (error) {
+                        console.error(`Error al procesar ${element}:`, error);
                     }
-                } else {
-                    console.error("The data structure is not as expected.");
+                }
+
+                /* Remove elements from "loading" once completed */ 
+                setLoading((prev) => {
+                    const updated = new Set(prev);
+                    uncachedElements.forEach((el) => updated.delete(el));
+                    return updated;
+                });
+
+                if (allData.length > 0) {
+                    onDataFetched(allData);
                 }
             } catch (error) {
-                console.error("Error fetching litoral cells data: ", error);
+                console.error("Error al obtener datos de Litoral Cells:", error);
             }
         };
-        if (element) {
+
+        /* Detect newly selected elements */ 
+        const newElements = elements.filter((el) => !prevElementsRef.current.includes(el));
+        if (newElements.length > 0) {
             fetchLitoralCellsData();
         }
-    }, [element, onDataFetched]);
+        prevElementsRef.current = elements;
+    }, [elements, cache, onDataFetched]);
 
     return null;
 };
