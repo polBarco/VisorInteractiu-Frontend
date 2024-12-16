@@ -1,10 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useMemo } from "react";
 import { MapContainer, TileLayer, Popup, Polygon, Marker, Polyline, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./css/Map.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
 
 const elementColors = {
     "Estuary": "#99ccff",
@@ -33,6 +32,8 @@ const elementColors = {
     "North": "#1e90ff",
     "South": "#32cd32",
     "West": "#ff8c00",
+
+    "CycloneCollection": "#8a2be2",
 };
 
 const getCustomIcon = (color) => {
@@ -43,14 +44,16 @@ const getCustomIcon = (color) => {
     });
 };
 
-const Map = ({ geoData, element }) => {
-    console.log("geoData recibido en Map:", geoData); 
-
+const GeoMap = ({ geoData }) => {
     const [zoomLevel, setZoomLevel] = useState(6); // Initial zoom level
     const shuffledGeoDataRef = useRef([]); // Ref to store shuffled geoData
-    const uniqueHurricaneColors = useRef({});  // Map to assign unique colors for hurricane
+    const uniqueHurricaneColors = useRef({});  // Map to assign unique colors for hurricanes
 
-    /* Update zoom level */
+    const uniqueGeoData = useMemo(() => {
+        if (!geoData || geoData.length === 0) return [];
+        return [...new Map(geoData.map((item) => [JSON.stringify(item), item])).values()];
+    }, [geoData]);
+
     function ZoomHandler() {
         const map = useMapEvents({
             zoomend: () => {
@@ -73,8 +76,7 @@ const Map = ({ geoData, element }) => {
 
             <ZoomHandler />
 
-            {/* Render geoData */}
-            {geoData && geoData.length > 0 && geoData.map((feature, index) => {
+            {uniqueGeoData && uniqueGeoData.length > 0 && uniqueGeoData.map((feature, index) => {
                 const { coordinates, element, type } = feature;
 
                 if (!coordinates || coordinates.length === 0) {
@@ -83,52 +85,38 @@ const Map = ({ geoData, element }) => {
 
                 if (type === "CartographyCollection") {
                     const { area_m2, area_km2, longitud, perimet_km } = feature;
-                    const color = elementColors[element]; 
+                    const color = elementColors[element];
 
-                    /* Shuffle the data randomly */
                     if (shuffledGeoDataRef.current.length === 0) {
-                        shuffledGeoDataRef.current = geoData
-                            .map((item, index) => ({ ...item, originalIndex: index })) 
-                            .sort(() => Math.random() - 0.5); // Shuffle the data
+                        shuffledGeoDataRef.current = uniqueGeoData
+                            .filter((item) => item.type === "CartographyCollection")
+                            .map((item, index) => ({ ...item, originalIndex: index }))
+                            .sort(() => Math.random() - 0.5);
                     }
 
-                    /* Calculate the centroid of the polygon */
-                    const latSum = coordinates.reduce((acc, point) => acc + point[0], 0);
-                    const lonSum = coordinates.reduce((acc, point) => acc + point[1], 0);
-                    const centroid = [latSum / coordinates.length, lonSum / coordinates.length];
-
-                    /* Calculate the visible markers */
                     const totalMarkers = shuffledGeoDataRef.current.length;
                     const maxZoomLevel = 12;
-
-                    /* Calculate the initial percentage of markers to show */
                     const initialPercentage = 0.05;
                     const initialMarkers = Math.ceil(totalMarkers * initialPercentage);
 
-                    /* Calculate the number of markers to show based on the zoom level */
-                    let markersToShow = initialMarkers; 
+                    let markersToShow = initialMarkers;
                     if (zoomLevel > 6) {
-                        markersToShow = Math.ceil((zoomLevel / maxZoomLevel) * totalMarkers); 
+                        markersToShow = Math.ceil((zoomLevel / maxZoomLevel) * totalMarkers);
                     }
                     if (zoomLevel >= maxZoomLevel) {
-                        markersToShow = totalMarkers; 
+                        markersToShow = totalMarkers;
                     }
 
-                    /* Select the visible elements */
                     const visibleMarkerIndices = new Set(
-                        shuffledGeoDataRef.current
-                            .slice(0, markersToShow) 
-                            .map(item => item.originalIndex)
+                        shuffledGeoDataRef.current.slice(0, markersToShow).map((item) => item.originalIndex)
                     );
 
-                    /* Determine if this marker should be displayed  */
                     const shouldShowMarker = visibleMarkerIndices.has(index);
 
                     return (
                         <React.Fragment key={index}>
-                            {/* Render Polygon */}
                             <Polygon
-                                pathOptions={{ color: color, fillColor: color, fillOpacity: 0.4 }} 
+                                pathOptions={{ color, fillColor: color, fillOpacity: 0.4 }} 
                                 positions={coordinates} 
                             >
                                 <Popup>
@@ -140,10 +128,12 @@ const Map = ({ geoData, element }) => {
                                 </Popup>
                             </Polygon>
 
-                            {/* Marker center Polygon */}
                             {shouldShowMarker && (
                                 <Marker
-                                    position={centroid}
+                                    position={[
+                                        coordinates.reduce((acc, point) => acc + point[0], 0) / coordinates.length,
+                                        coordinates.reduce((acc, point) => acc + point[1], 0) / coordinates.length,
+                                    ]}
                                     icon={getCustomIcon(color)}
                                 >
                                     <Popup>
@@ -167,38 +157,14 @@ const Map = ({ geoData, element }) => {
                     );
                 }
 
-                else if (type === "D50Collection") {
-                    const { name, d50 } = feature;
-
-                    const color = elementColors[name];
-    
-                    return (
-                        <React.Fragment key={index}>
-                            <Marker
-                                position={[coordinates[0], coordinates[1]]}
-                                icon={getCustomIcon(color)}
-                            >
-                                <Popup>
-                                    <strong>Name:</strong> {name} <br />
-                                    <strong>D50</strong> {d50} <br />
-                                    <strong>Coordinates:</strong> 
-                                    <ul>
-                                        <li>[{coordinates[0].toFixed(6)}, {coordinates[1].toFixed(6)}]</li>
-                                    </ul>
-                                </Popup>
-                            </Marker>
-                        </React.Fragment>
-                    )
-                }
-
-                else if (type === "LitoralCellsCollection") {
+                if (type === "LitoralCellsCollection") {
                     const { name, length, length_km, coord_xfin, coord_yfin, coord_xini, coord_yini, par_impar } = feature;
-    
+
                     return (
                         <React.Fragment key={index}>
                             <Polyline
-                                pathOptions={{ fillOpacity: 0.6 }} 
-                                positions={coordinates} 
+                                pathOptions={{ fillColor: elementColors["LitoralCellsCollection"], fillOpacity: 0.6 }}
+                                positions={coordinates}
                             >
                                 <Popup>
                                     <strong>Name:</strong> {name} <br />
@@ -219,20 +185,16 @@ const Map = ({ geoData, element }) => {
                             {coordinates.map((point, pointIndex) => {
                                 const [lat, lng] = point;
 
-                                /* Marker initial coordinate */
                                 if (pointIndex === 0) {
                                     return (
                                         <Marker
                                             key={`start-${index}`}
                                             position={[lat, lng]}
-                                            icon={getCustomIcon(elementColors[type])}
+                                            icon={getCustomIcon(elementColors["LitoralCellsCollection"])}
                                         >
                                             <Popup>
                                                 <strong>Name:</strong> {name} <br />
-                                                <strong>Length (m):</strong> {length} <br />
-                                                <strong>Length (km):</strong>{length_km} <br />
-                                                <strong>Par_impar:</strong> {par_impar} <br />
-                                                <strong>Initial coordinate:</strong> 
+                                                <strong>Start Coordinate:</strong> 
                                                 <ul>
                                                     <li>[{lat.toFixed(6)}, {lng.toFixed(6)}]</li>
                                                 </ul>
@@ -241,20 +203,16 @@ const Map = ({ geoData, element }) => {
                                     );
                                 }
 
-                                /* Marker final coordinate */
                                 if (pointIndex === coordinates.length - 1) {
                                     return (
                                         <Marker
                                             key={`end-${index}`}
                                             position={[lat, lng]}
-                                            icon={getCustomIcon(elementColors[type])}
+                                            icon={getCustomIcon(elementColors["LitoralCellsCollection"])}
                                         >
                                             <Popup>
                                                 <strong>Name:</strong> {name} <br />
-                                                <strong>Length (m):</strong> {length} <br />
-                                                <strong>Length (km):</strong>{length_km} <br />
-                                                <strong>Par_impar:</strong> {par_impar} <br />
-                                                <strong>Final coordinate:</strong>
+                                                <strong>End Coordinate:</strong>
                                                 <ul>
                                                     <li>[{lat.toFixed(6)}, {lng.toFixed(6)}]</li>
                                                 </ul>
@@ -269,9 +227,9 @@ const Map = ({ geoData, element }) => {
                     );
                 }
 
-                else if (type === "SedimentTransportCollection") {
+                if (type === "SedimentTransportCollection") {
                     const { id, transport, percent } = feature;
-    
+
                     return (
                         <React.Fragment key={index}>
                             <Marker
@@ -289,17 +247,17 @@ const Map = ({ geoData, element }) => {
                                 </Popup>
                             </Marker>
                         </React.Fragment>
-                    )
+                    );
                 }
 
-                else if (type === "Era5NodeCollection") {
+                if (type === "Era5NodeCollection") {
                     const { id } = feature;
-                
+
                     return (
                         <React.Fragment key={index}>
                             <Marker
                                 position={[coordinates[0], coordinates[1]]}
-                                icon={getCustomIcon(elementColors[type])} 
+                                icon={getCustomIcon(elementColors[type])}
                             >
                                 <Popup>
                                     <strong>ID:</strong> {id} <br />
@@ -313,86 +271,78 @@ const Map = ({ geoData, element }) => {
                     );
                 }
 
-                else if (type === "HurricaneCollection") {
-                    const { name, year, hurricaneType } = feature;
+                if (type === "D50Collection") {
+                    const { name, d50 } = feature;
 
-                    const colorPalette = ["#ff0000", "#02ba24", "#0000ff", "#800080", "#ffa500"];
-                
-                    /* Assign a unique color to each hurricane based on its name */
-                    if (!uniqueHurricaneColors.current[name]) {
-                        const currentLength = Object.keys(uniqueHurricaneColors.current).length;
-                        uniqueHurricaneColors.current[name] = colorPalette[currentLength % colorPalette.length];
-                    }
-                
                     return (
-                        <React.Fragment key={index}>
-                            <Polyline
-                                pathOptions={{
-                                    color: uniqueHurricaneColors.current[name], 
-                                    fillOpacity: 0.6,
-                                }}
-                                positions={coordinates}
-                            >
-                                <Popup>
-                                    <strong>Name:</strong> {name} <br />
-                                    <strong>Year:</strong> {year} <br />
-                                    <strong>Type:</strong> {hurricaneType} <br />
-                                </Popup>
-                            </Polyline>
-                        </React.Fragment>
+                        <Marker
+                            key={index}
+                            position={[coordinates[0], coordinates[1]]}
+                            icon={getCustomIcon(elementColors[name])}
+                        >
+                            <Popup>
+                                <strong>Name:</strong> {name} <br />
+                                <strong>D50</strong> {d50} <br />
+                                <strong>Coordinates:</strong> 
+                                <ul>
+                                    <li>[{coordinates[0].toFixed(6)}, {coordinates[1].toFixed(6)}]</li>
+                                </ul>
+                            </Popup>
+                        </Marker>
                     );
                 }
 
-                else if (type === "RiversMozambiqueCollection") {
+                if (type === "HurricaneCollection") {
+                    const { name, year, hurricaneType } = feature;
+
+                    if (!uniqueHurricaneColors.current[name]) {
+                        const colorPalette = ["#ff0000", "#02ba24", "#0000ff", "#800080", "#ffa500"];
+                        uniqueHurricaneColors.current[name] = colorPalette[Object.keys(uniqueHurricaneColors.current).length % colorPalette.length];
+                    }
+
+                    return (
+                        <Polyline
+                            key={index}
+                            pathOptions={{
+                                color: uniqueHurricaneColors.current[name], 
+                                fillOpacity: 0.6,
+                            }}
+                            positions={coordinates}
+                        >
+                            <Popup>
+                                <strong>Name:</strong> {name} <br />
+                                <strong>Year:</strong> {year} <br />
+                                <strong>Type:</strong> {hurricaneType} <br />
+                            </Popup>
+                        </Polyline>
+                    );
+                }
+
+                if (type === "RiversMozambiqueCollection") {
                     const { arcid, up_cells, region } = feature;
 
                     return (
-                        <React.Fragment key={index}>
-                            <Polyline
-                                pathOptions={{
-                                    color: elementColors[region],  
-                                    fillOpacity: 0.6,
-                                }}
-                                positions={coordinates}
-                            >
-                                <Popup>
-                                    <strong>Arc ID:</strong> {arcid} <br />
-                                    <strong>Up Cells:</strong> {up_cells} <br />
-                                    <strong>Region:</strong> {region}
-                                </Popup>
-                            </Polyline>
-                        </React.Fragment>
+                        <Polyline
+                            key={index}
+                            pathOptions={{
+                                color: elementColors[region],  
+                                fillOpacity: 0.6,
+                            }}
+                            positions={coordinates}
+                        >
+                            <Popup>
+                                <strong>Arc ID:</strong> {arcid} <br />
+                                <strong>Up Cells:</strong> {up_cells} <br />
+                                <strong>Region:</strong> {region}
+                            </Popup>
+                        </Polyline>
                     );
                 }
 
-                // else if (type === "RiverCollection") {
-                //     const { arcid, up_cells } = feature; 
-
-                //     return (
-                //         <React.Fragment key={index}>
-                //             <Polyline
-                //                 pathOptions={{
-                //                     color: elementColors[type] || "blue",  
-                //                     fillOpacity: 0.6,
-                //                 }}
-                //                 positions={coordinates}
-                //             >
-                //                 <Popup>
-                //                     <strong>Arc ID:</strong> {arcid} <br />
-                //                     <strong>Up Cells:</strong> {up_cells} 
-                //                 </Popup>
-                //             </Polyline>
-                //         </React.Fragment>
-                //     );
-                // }
-                    else {
-                        console.warn("Tipo de elemento desconocido:", type);
-                        return null;
-                    }
-
+                return null;
             })}
         </MapContainer>
     );
 };
 
-export default Map;
+export default GeoMap;

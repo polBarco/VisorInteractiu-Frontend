@@ -100,6 +100,14 @@
     font-size: 14px;
 }
 
+.selected {
+    /* background-color: #708238; */
+    background-color: #a2d5a2;
+    border: 1px solid #7ca77c; 
+    color: #555;
+}
+
+
 /* Responsiveness */
 @media screen and (max-width: 600px) {
     .dropdown-menu {

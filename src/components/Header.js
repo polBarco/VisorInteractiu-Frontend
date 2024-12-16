@@ -2,23 +2,23 @@ import React, { useEffect, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import Cartography from "./Cartography";
-import Map from "./Map";
+import GeoMap from "./Map";
 import D50 from "./d50";
 import LitoralCells from "./LitoralCells";
 import SedimentTransport from "./SedimentTransport";
 import Era5Node from "./Era5Node";
 import Hurricane from "./Hurricane";
 import RiversMozambique from "./RiversMozambique";
-import Rivers from "./Rivers";
 import "./css/Header.css";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [openSubmenu, setOpenSubmenu] = useState(null); 
-    const [geoData, setGeoData] = useState(null);
+    const [geoData, setGeoData] = useState([]);
     const [selectedElement, setSelectedElement] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
     const [cachedData, setCacheData] = useState({});
+    const [selectedElements, setSelectedElements] = useState([]);
 
     const prevSelectedElement = useRef(null);
     const prevSelectedType = useRef(null);
@@ -35,44 +35,75 @@ const Header = () => {
         if (cachedData?.[type]?.[option]) {
             setGeoData(cachedData[type][option]);
         } else {
-            if (selectedElement !== option || selectedType !== type) {
-                setSelectedElement(option);
-                setSelectedType(type);
-                setGeoData(null);
-            }
+            setSelectedElement(option);
+            setSelectedType(type);
+            setGeoData(null);
         }
         setIsMenuOpen(false);
         setOpenSubmenu(null); 
     };
 
-    const handleSend = (data) => {
-        console.log("Hurricane GeoJSON data received:", data);
-        setGeoData(data); 
-        setSelectedElement("Hurricane"); 
-        setSelectedType("hurricane");
-        setIsMenuOpen(false);
-        setOpenSubmenu(null); 
-    };
-
-    const handleRiversData = (data) => {
-        console.log("Rivers GeoJSON data received::", data);
-        setGeoData(data);
-        setSelectedElement("Rivers");
-        setSelectedType("RiverCollection");
-        setIsMenuOpen(false); 
-        setOpenSubmenu(null);
+    const handleOptionToggle = (type, option) => {
+        if (type === "d50") {
+            setSelectedElements((prev) => {
+                const updatedSelection = prev.includes(option)
+                    ? prev.filter((item) => item !== option) // Deseleccionar el elemento
+                    : [...prev, option]; // Seleccionar el elemento
+    
+                // Actualiza el mapa: muestra solo los datos seleccionados
+                setGeoData((prevGeoData) => {
+                    if (!prevGeoData) return null;
+                    return updatedSelection.length
+                        ? prevGeoData.filter((item) => updatedSelection.includes(item.name))
+                        : [];
+                });
+    
+                return updatedSelection;
+            });
+            setSelectedType(type);
+        } else {
+            // Limpia las selecciones anteriores y resetea el geoData
+            setSelectedElements([]);
+            setGeoData([]); // Limpia el mapa
+            setSelectedType(type); // Actualiza el tipo seleccionado
+        }
     };
 
     const handleDataFetched = (data) => {
-        console.log("Datos recibidos:", data);
-        setCacheData((prevCache) => ({
-            ...prevCache,
-            [selectedType]: {
-                ...prevCache[selectedType],
-                [selectedElement]: data,
-            },
-        }));
-        setGeoData(data);
+        if (selectedType === "d50") {
+            setGeoData((prev) => {
+                const safePrev = Array.isArray(prev) ? prev : [];
+                const combinedData = [...safePrev, ...data].filter(
+                    (item, index, self) =>
+                        index === self.findIndex(
+                            (t) =>
+                                t.name === item.name &&
+                                JSON.stringify(t.coordinates) === JSON.stringify(item.coordinates)
+                        )
+                );
+                return combinedData.filter((item) => selectedElements.includes(item.name));
+            });
+        } else {
+            // Comportamiento estándar para otros tipos
+            setCacheData((prevCache) => ({
+                ...prevCache,
+                [selectedType]: {
+                    ...prevCache[selectedType],
+                    [selectedElement]: data,
+                },
+            }));
+            setGeoData(data);
+            console.log("Datos estándar recibidos:", data);
+        }
+    };
+
+    const handleHurricaneData = (data) => {
+        // Limpiamos por completo geoData antes de mostrar los nuevos datos de huracanes
+        console.log("Datos de Hurricane recibidos:", data);
+        setSelectedElements([]); // Limpia cualquier selección previa
+        setGeoData([]); // Limpia el mapa
+        setGeoData(data); // Carga solo los datos de hurricane
+        setSelectedType("hurricane");
     };
 
     useEffect(() => {
@@ -90,6 +121,8 @@ const Header = () => {
                     </button>
                     {isMenuOpen && (
                         <div className="dropdown-menu">
+
+                            {/* Cartography */}
                             <div
                                 className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("cartography")}
@@ -114,6 +147,7 @@ const Header = () => {
                                 )}
                             </div>
 
+                            {/* Cyclone */}
                             <div
                                 className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("cyclone")}
@@ -140,6 +174,7 @@ const Header = () => {
                                 )}
                             </div>
 
+                            {/* D50 */}
                             <div
                                 className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("d50")}
@@ -151,9 +186,11 @@ const Header = () => {
                                             <div
                                                 key={index}
                                                 onClick={() =>
-                                                    handleOptionClick("d50", option)
+                                                    handleOptionToggle("d50", option)
                                                 }
-                                                className="dropdown-submenu-item"
+                                                className={`dropdown-submenu-item ${
+                                                    selectedElements.includes(option) ? "selected" : "" 
+                                                }`}
                                             >
                                                 {option}
                                             </div>
@@ -162,6 +199,7 @@ const Header = () => {
                                 )}
                             </div>
 
+                            {/* Hurricane */}
                             <div
                                 className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("hurricane")}
@@ -170,11 +208,12 @@ const Header = () => {
                                 {openSubmenu === "hurricane" && (
                                     <Hurricane
                                         onClose={() => toggleSubmenu(null)} 
-                                        onSelect={(type, year) => handleSend(type, year)}
+                                        onSelect={(data) => handleHurricaneData(data)}
                                     />
                                 )}
                             </div>
 
+                            {/* Litoral Cells */}
                             <div
                                 className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("litoral_cells")}
@@ -199,6 +238,7 @@ const Header = () => {
                                 )}
                             </div>
 
+                            {/* Rivers */}
                             <div
                                 className="dropdown-menu-item"
                                 onClick={() => toggleSubmenu("rivers")}
@@ -220,48 +260,33 @@ const Header = () => {
                                     </div>
                                 )}
                             </div>
-
-                            {/* <div 
-                                className="dropdown-menu-item"
-                                onClick={() => toggleSubmenu("rivers")}
-                            >
-                                Rivers <FontAwesomeIcon icon={faChevronRight} />
-                                {openSubmenu === "rivers" && (
-                                    <Rivers 
-                                        onClose={() => toggleSubmenu(null)}
-                                        onDataFetched={handleRiversData} 
-                                    />
-                                )}
-                            </div> */}
-                                                     
                         </div>
                     )}
                 </div>
             </header>
 
-            {/* Render only if selectedElement is defined */}
-            {selectedElement &&
-                !cachedData[selectedType]?.[selectedElement] &&
-                (prevSelectedElement.current !== selectedElement || prevSelectedType.current !== selectedType) &&
-                (
-                    selectedType === "cartography" ? (
-                    <Cartography element={selectedElement} onDataFetched={handleDataFetched} />
-                    ) : selectedType === "d50" ? (
-                    <D50 element={selectedElement} onDataFetched={handleDataFetched} />
-                    ) : selectedType === "litoral_cells" ? (
-                    <LitoralCells element={selectedElement} onDataFetched={handleDataFetched} />
-                    ) : selectedType === "sediment_transport" ? (
-                    <SedimentTransport element={selectedElement} onDataFetched={handleDataFetched} />
-                    ) : selectedType === "era5_node" ? (
-                    <Era5Node element={selectedElement} onDataFetched={handleDataFetched} />
-                    ) : selectedType === "rivers" ? (
-                    <RiversMozambique element={selectedElement} onDataFetched={handleDataFetched} />
-                    ) : null
-                )
-            }
+            {/* Render Components */}
+            {selectedType === "cartography" && selectedElement && (
+                <Cartography element={selectedElement} onDataFetched={handleDataFetched} />
+            )}
+            {selectedType === "sediment_transport" && selectedElement && (
+                <SedimentTransport element={selectedElement} onDataFetched={handleDataFetched} />
+            )}
+            {selectedType === "era5_node" && selectedElement && (
+                <Era5Node element={selectedElement} onDataFetched={handleDataFetched} />
+            )}
+            {selectedType === "litoral_cells" && selectedElement && (
+                <LitoralCells element={selectedElement} onDataFetched={handleDataFetched} />
+            )}
+            {selectedType === "rivers" && selectedElement && (
+                <RiversMozambique element={selectedElement} onDataFetched={handleDataFetched} />
+            )}
+            {selectedElements.length > 0 && (
+                <D50 elements={selectedElements} onDataFetched={handleDataFetched} />
+            )}
 
-            {/* Render the map with the geoData once it is received */}
-            <Map geoData={geoData} element={selectedElement} />
+            {/* Render GeoMap */}
+            <GeoMap geoData={geoData} element={selectedElement} />
         </div>
     );
 };
