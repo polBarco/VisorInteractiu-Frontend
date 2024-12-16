@@ -18,7 +18,8 @@ const Header = () => {
     const [selectedElement, setSelectedElement] = useState(null);
     const [selectedType, setSelectedType] = useState(null);
     const [cachedData, setCacheData] = useState({});
-    const [selectedElements, setSelectedElements] = useState([]);
+    const [selectedD50Elements, setSelectedD50Elements] = useState([]);
+    const [selectedLitoralCellsElements, setSelectedLitoralCellsElements] = useState([]);
 
     const prevSelectedElement = useRef(null);
     const prevSelectedType = useRef(null);
@@ -45,64 +46,78 @@ const Header = () => {
 
     const handleOptionToggle = (type, option) => {
         if (type === "d50") {
-            setSelectedElements((prev) => {
+            setSelectedLitoralCellsElements([]);
+            
+            setSelectedD50Elements((prev) => {
                 const updatedSelection = prev.includes(option)
-                    ? prev.filter((item) => item !== option) // Deseleccionar el elemento
-                    : [...prev, option]; // Seleccionar el elemento
+                    ? prev.filter((item) => item !== option) // Deselect
+                    : [...prev, option]; // Select
     
-                // Actualiza el mapa: muestra solo los datos seleccionados
-                setGeoData((prevGeoData) => {
-                    if (!prevGeoData) return null;
-                    return updatedSelection.length
-                        ? prevGeoData.filter((item) => updatedSelection.includes(item.name))
-                        : [];
-                });
+                /* Update geoData by removing deselected elements */
+                setGeoData((prevGeoData) =>
+                    prevGeoData.filter((item) => updatedSelection.includes(item.name))
+                );
     
                 return updatedSelection;
             });
-            setSelectedType(type);
+            setSelectedType("d50");
+        } else if (type === "litoral_cells") {
+            setSelectedD50Elements([]);
+    
+            setSelectedLitoralCellsElements((prev) => {
+                const updatedSelection = prev.includes(option)
+                    ? prev.filter((item) => item !== option) 
+                    : [...prev, option]; 
+    
+                setGeoData((prevGeoData) =>
+                    prevGeoData.filter((item) => updatedSelection.includes(item.name))
+                );
+    
+                return updatedSelection;
+            });
+            setSelectedType("litoral_cells");
         } else {
-            // Limpia las selecciones anteriores y resetea el geoData
-            setSelectedElements([]);
-            setGeoData([]); // Limpia el mapa
-            setSelectedType(type); // Actualiza el tipo seleccionado
+            setSelectedD50Elements([]);
+            setSelectedLitoralCellsElements([]);
+            setGeoData([]);
+            setSelectedType(type);
         }
-    };
+    };   
 
     const handleDataFetched = (data) => {
-        if (selectedType === "d50") {
-            setGeoData((prev) => {
-                const safePrev = Array.isArray(prev) ? prev : [];
-                const combinedData = [...safePrev, ...data].filter(
-                    (item, index, self) =>
-                        index === self.findIndex(
-                            (t) =>
-                                t.name === item.name &&
-                                JSON.stringify(t.coordinates) === JSON.stringify(item.coordinates)
-                        )
+        setGeoData((prev) => {
+            const safePrev = Array.isArray(prev) ? prev : [];
+    
+            /* Combine previous and new data without duplicates */
+            const combinedData = [...safePrev, ...data].reduce((acc, item) => {
+                const exists = acc.some(
+                    (t) =>
+                        t.name === item.name &&
+                        JSON.stringify(t.coordinates) === JSON.stringify(item.coordinates)
                 );
-                return combinedData.filter((item) => selectedElements.includes(item.name));
-            });
-        } else {
-            // Comportamiento estándar para otros tipos
-            setCacheData((prevCache) => ({
-                ...prevCache,
-                [selectedType]: {
-                    ...prevCache[selectedType],
-                    [selectedElement]: data,
-                },
-            }));
-            setGeoData(data);
-            console.log("Datos estándar recibidos:", data);
-        }
+                if (!exists) acc.push(item);
+                return acc;
+            }, []);
+    
+            /* Filter the data based on the selected type */
+            if (selectedType === "d50") {
+                return combinedData.filter((item) => selectedD50Elements.includes(item.name));
+
+            } else if (selectedType === "litoral_cells") {
+                return combinedData.filter((item) => selectedLitoralCellsElements.includes(item.name));
+
+            } else {
+                return data;
+            }
+        });
     };
 
     const handleHurricaneData = (data) => {
-        // Limpiamos por completo geoData antes de mostrar los nuevos datos de huracanes
         console.log("Datos de Hurricane recibidos:", data);
-        setSelectedElements([]); // Limpia cualquier selección previa
-        setGeoData([]); // Limpia el mapa
-        setGeoData(data); // Carga solo los datos de hurricane
+        setSelectedD50Elements([]); 
+        setSelectedLitoralCellsElements([]);
+        setGeoData([]); 
+        setGeoData(data);
         setSelectedType("hurricane");
     };
 
@@ -189,7 +204,7 @@ const Header = () => {
                                                     handleOptionToggle("d50", option)
                                                 }
                                                 className={`dropdown-submenu-item ${
-                                                    selectedElements.includes(option) ? "selected" : "" 
+                                                    selectedD50Elements.includes(option) ? "selected" : "" 
                                                 }`}
                                             >
                                                 {option}
@@ -227,9 +242,11 @@ const Header = () => {
                                             <div
                                                 key={index}
                                                 onClick={() =>
-                                                    handleOptionClick("litoral_cells", option)
+                                                    handleOptionToggle("litoral_cells", option)
                                                 }
-                                                className="dropdown-submenu-item"
+                                                className={`dropdown-submenu-item ${
+                                                    selectedLitoralCellsElements.includes(option) ? "selected" : "" 
+                                                }`}
                                             >
                                                 {option}
                                             </div>
@@ -275,14 +292,15 @@ const Header = () => {
             {selectedType === "era5_node" && selectedElement && (
                 <Era5Node element={selectedElement} onDataFetched={handleDataFetched} />
             )}
-            {selectedType === "litoral_cells" && selectedElement && (
-                <LitoralCells element={selectedElement} onDataFetched={handleDataFetched} />
-            )}
             {selectedType === "rivers" && selectedElement && (
                 <RiversMozambique element={selectedElement} onDataFetched={handleDataFetched} />
             )}
-            {selectedElements.length > 0 && (
-                <D50 elements={selectedElements} onDataFetched={handleDataFetched} />
+            {selectedType === "d50" && selectedD50Elements.length > 0 && (
+                <D50 elements={selectedD50Elements} onDataFetched={handleDataFetched} />
+            )}
+
+            {selectedType === "litoral_cells" && selectedLitoralCellsElements.length > 0 && (
+                <LitoralCells elements={selectedLitoralCellsElements} onDataFetched={handleDataFetched} />
             )}
 
             {/* Render GeoMap */}

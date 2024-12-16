@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 
 const D50 = ({ elements, onDataFetched }) => {
-    const [cache, setCache] = useState({}); // Caché para almacenar datos ya obtenidos
-    const [loading, setLoading] = useState(new Set()); // Estado para solicitudes activas
-    const prevElementsRef = useRef([]); // Almacena elementos previamente seleccionados
+    const [cache, setCache] = useState({}); // CCache to store already retrieved data
+    const [loading, setLoading] = useState(new Set()); // State for active requests.
+    const prevElementsRef = useRef([]); // Stores previously selected elements
 
     useEffect(() => {
         const fetchD50Data = async () => {
@@ -14,7 +14,6 @@ const D50 = ({ elements, onDataFetched }) => {
                 );
 
                 if (uncachedElements.length === 0) {
-                    console.log("Todos los elementos están en caché.");
                     const cachedData = elements.flatMap((element) => cache[element] || []);
                     onDataFetched(cachedData);
                     return;
