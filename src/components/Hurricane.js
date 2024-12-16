@@ -22,8 +22,8 @@ const Hurricane = ({ onClose, onSelect }) => {
 
     /* API call to fetch the types of hurricanes */
     useEffect(() => {
-        // fetch("http://localhost:8000/api/hurricane/types")
-        fetch("https://visorinteractiu-backend.onrender.com/api/hurricane/types")
+        fetch("http://localhost:8000/api/hurricane/types")
+        //fetch("https://visorinteractiu-backend.onrender.com/api/hurricane/types")
             .then((response) => response.json())
             .then((data) => {
                 if (Array.isArray(data)) {
@@ -38,8 +38,8 @@ const Hurricane = ({ onClose, onSelect }) => {
     /* API call to fetch the years of hurricanes based on the selected type */
     useEffect(() => {
         if (selectedType) {
-            // fetch(`http://localhost:8000/api/hurricane/years/${selectedType}`)
-            fetch(`https://visorinteractiu-backend.onrender.com/api/hurricane/years/${selectedType}`)
+            fetch(`http://localhost:8000/api/hurricane/years/${selectedType}`)
+            //fetch(`https://visorinteractiu-backend.onrender.com/api/hurricane/years/${selectedType}`)
                 .then((response) => response.json())
                 .then((data) => {
                     if (Array.isArray(data)) {
@@ -57,8 +57,8 @@ const Hurricane = ({ onClose, onSelect }) => {
     const handleSend = async () => {
         if (selectedType && selectedYear) {
             try {
-                //const response = await fetch(`http://localhost:8000/api/hurricane/${selectedType}/${selectedYear}`);
-                const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/hurricane/${selectedType}/${selectedYear}`);
+                const response = await fetch(`http://localhost:8000/api/hurricane/${selectedType}/${selectedYear}`);
+                //const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/hurricane/${selectedType}/${selectedYear}`);
                 if (!response.ok) {
                     throw new Error("Error fetching hurricane data");
                 }
