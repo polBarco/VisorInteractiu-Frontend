@@ -20,6 +20,7 @@ const Header = () => {
     const [cachedData, setCacheData] = useState({});
     const [selectedD50Elements, setSelectedD50Elements] = useState([]);
     const [selectedLitoralCellsElements, setSelectedLitoralCellsElements] = useState([]);
+    const [selectedRiversElements, setSelectedRiversElements] = useState([]);
 
     const prevSelectedElement = useRef(null);
     const prevSelectedType = useRef(null);
@@ -47,6 +48,7 @@ const Header = () => {
     const handleOptionToggle = (type, option) => {
         if (type === "d50") {
             setSelectedLitoralCellsElements([]);
+            setSelectedRiversElements([]);
             
             setSelectedD50Elements((prev) => {
                 const updatedSelection = prev.includes(option)
@@ -61,8 +63,10 @@ const Header = () => {
                 return updatedSelection;
             });
             setSelectedType("d50");
+
         } else if (type === "litoral_cells") {
             setSelectedD50Elements([]);
+            setSelectedRiversElements([]);
     
             setSelectedLitoralCellsElements((prev) => {
                 const updatedSelection = prev.includes(option)
@@ -76,6 +80,23 @@ const Header = () => {
                 return updatedSelection;
             });
             setSelectedType("litoral_cells");
+
+        } else if (type === "rivers") {
+            setSelectedLitoralCellsElements([]);
+            setSelectedD50Elements([]);
+
+            setSelectedRiversElements((prev) => {
+                const updatedSelection = prev.includes(option)
+                    ? prev.filter((item) => item !== option)
+                    : [...prev, option];
+
+                setGeoData((prevGeoData) => 
+                    prevGeoData.filter((item) => updatedSelection.includes(item.region))
+                );
+                return updatedSelection;
+            });
+            setSelectedType("rivers");
+
         } else {
             setSelectedD50Elements([]);
             setSelectedLitoralCellsElements([]);
@@ -88,27 +109,16 @@ const Header = () => {
         setGeoData((prev) => {
             const safePrev = Array.isArray(prev) ? prev : [];
     
-            /* Combine previous and new data without duplicates */
+            // Combinar nuevos datos con los previos sin duplicados
             const combinedData = [...safePrev, ...data].reduce((acc, item) => {
-                const exists = acc.some(
-                    (t) =>
-                        t.name === item.name &&
-                        JSON.stringify(t.coordinates) === JSON.stringify(item.coordinates)
-                );
-                if (!exists) acc.push(item);
+                const key = `${item.arcid || item.name || item.region || JSON.stringify(item.coordinates)}`; // Clave robusta
+                if (!acc.some((existing) => `${existing.arcid || existing.name || existing.region || JSON.stringify(existing.coordinates)}` === key)) {
+                    acc.push(item);
+                }
                 return acc;
             }, []);
     
-            /* Filter the data based on the selected type */
-            if (selectedType === "d50") {
-                return combinedData.filter((item) => selectedD50Elements.includes(item.name));
-
-            } else if (selectedType === "litoral_cells") {
-                return combinedData.filter((item) => selectedLitoralCellsElements.includes(item.name));
-
-            } else {
-                return data;
-            }
+            return combinedData; // No filtrar aquí
         });
     };
 
@@ -116,6 +126,7 @@ const Header = () => {
         console.log("Datos de Hurricane recibidos:", data);
         setSelectedD50Elements([]); 
         setSelectedLitoralCellsElements([]);
+        setSelectedRiversElements([]);
         setGeoData([]); 
         setGeoData(data);
         setSelectedType("hurricane");
@@ -267,9 +278,11 @@ const Header = () => {
                                             <div
                                                 key={index}
                                                 onClick={() =>
-                                                    handleOptionClick("rivers", option)
+                                                    handleOptionToggle("rivers", option)
                                                 }
-                                                className="dropdown-submenu-item"
+                                                className={`dropdown-submenu-item ${
+                                                    selectedRiversElements.includes(option) ? "selected" : "" 
+                                                }`}
                                             >
                                                 {option}
                                             </div>
@@ -292,9 +305,7 @@ const Header = () => {
             {selectedType === "era5_node" && selectedElement && (
                 <Era5Node element={selectedElement} onDataFetched={handleDataFetched} />
             )}
-            {selectedType === "rivers" && selectedElement && (
-                <RiversMozambique element={selectedElement} onDataFetched={handleDataFetched} />
-            )}
+
             {selectedType === "d50" && selectedD50Elements.length > 0 && (
                 <D50 elements={selectedD50Elements} onDataFetched={handleDataFetched} />
             )}
@@ -303,8 +314,21 @@ const Header = () => {
                 <LitoralCells elements={selectedLitoralCellsElements} onDataFetched={handleDataFetched} />
             )}
 
+            {selectedType === "rivers" && selectedRiversElements.length > 0 && (
+                <RiversMozambique elements={selectedRiversElements} onDataFetched={handleDataFetched} />
+            )}
+
             {/* Render GeoMap */}
-            <GeoMap geoData={geoData} element={selectedElement} />
+            {/* <GeoMap geoData={geoData} element={selectedElement} /> */}
+
+            <GeoMap
+                geoData={geoData.filter((item) => {
+                    if (selectedType === "d50") return selectedD50Elements.includes(item.name);
+                    if (selectedType === "litoral_cells") return selectedLitoralCellsElements.includes(item.name);
+                    if (selectedType === "rivers") return selectedRiversElements.includes(item.region);
+                    return true;
+                })}
+            />
         </div>
     );
 };

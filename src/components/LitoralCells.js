@@ -27,7 +27,7 @@ const LitoralCells = ({ elements, onDataFetched }) => {
                         const response = await fetch(`http://localhost:8000/api/litoral_cells?name=${encodeURIComponent(element)}`);
                         // const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/litoral_cells?name=${encodeURIComponent(element)}`);
                         if (!response.ok) {
-                            throw new Error(`Error al obtener datos de ${element}`);
+                            throw new Error(`Error retrieving data from ${element}`);
                         }
 
                         const data = await response.json();
@@ -64,10 +64,10 @@ const LitoralCells = ({ elements, onDataFetched }) => {
                                 allData.push(...coordinatesArray);
                             }
                         } else {
-                            console.error(`La estructura de datos no es válida para ${element}`);
+                            console.error(`The data structure is not valid for ${element}`);
                         }
                     } catch (error) {
-                        console.error(`Error al procesar ${element}:`, error);
+                        console.error(`Error fetching litoral cells data for ${element}:`, error);
                     }
                 }
 
@@ -82,7 +82,7 @@ const LitoralCells = ({ elements, onDataFetched }) => {
                     onDataFetched(allData);
                 }
             } catch (error) {
-                console.error("Error al obtener datos de Litoral Cells:", error);
+                console.error("Error fetching litoral cells data:", error);
             }
         };
 

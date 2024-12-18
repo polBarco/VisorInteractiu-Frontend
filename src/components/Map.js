@@ -45,6 +45,8 @@ const getCustomIcon = (color) => {
 };
 
 const GeoMap = ({ geoData }) => {
+    console.log("Datos recibidos en GeoMap:", geoData);
+
     const [zoomLevel, setZoomLevel] = useState(6); // Initial zoom level
     const shuffledGeoDataRef = useRef([]); // Ref to store shuffled geoData
     const uniqueHurricaneColors = useRef({});  // Map to assign unique colors for hurricanes
@@ -173,11 +175,15 @@ const GeoMap = ({ geoData }) => {
                                     <strong>Par_impar:</strong> {par_impar} <br />
                                     <strong>Initial Coordinate:</strong> 
                                     <ul>
-                                        <li>[{coord_xini.toFixed(6)}, {coord_yini.toFixed(6)}]</li>
+                                        {coord_xini != null && coord_yini != null
+                                            ? `[${coord_xini.toFixed(6)}, ${coord_yini.toFixed(6)}]`
+                                            : "N/A"}
                                     </ul>
                                     <strong>Final Coordinate:</strong> 
                                     <ul>
-                                        <li>[{coord_xfin.toFixed(6)}, {coord_yfin.toFixed(6)}]</li>
+                                        {coord_xfin != null && coord_yfin != null
+                                            ? `[${coord_xfin.toFixed(6)}, ${coord_yfin.toFixed(6)}]`
+                                            : "N/A"}
                                     </ul>
                                 </Popup>
                             </Polyline>
