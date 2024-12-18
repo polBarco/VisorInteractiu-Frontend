@@ -1,49 +1,56 @@
 import { useEffect, useState, useRef } from "react";
 
-const D50 = ({ elements, onDataFetched }) => {
-    const [cache, setCache] = useState({}); // CCache to store already retrieved data
-    const [loading, setLoading] = useState(new Set()); // State for active requests.
-    const prevElementsRef = useRef([]); // Stores previously selected elements
+const LitoralCells = ({ elements, onDataFetched }) => {
+    const [cache, setCache] = useState({}); 
+    const [loading, setLoading] = useState(new Set()); 
+    const prevElementsRef = useRef([]); 
 
     useEffect(() => {
-        const fetchD50Data = async () => {
+        const fetchLitoralCellsData = async () => {
             try {
                 const allData = [];
                 const uncachedElements = elements.filter(
                     (element) => !cache[element] && !loading.has(element)
                 );
 
+                /* If all elements are in the cache, we return them directly */
                 if (uncachedElements.length === 0) {
                     const cachedData = elements.flatMap((element) => cache[element] || []);
                     onDataFetched(cachedData);
                     return;
                 }
 
-                setLoading((prev) => new Set([...prev, ...uncachedElements]));
+                setLoading((prev) => new Set([...prev, ...uncachedElements])); 
 
                 for (const element of uncachedElements) {
                     try {
-                        const response = await fetch(`http://localhost:8000/api/d50?name=${encodeURIComponent(element)}`);
-                        // const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/d50?name=${encodeURIComponent(element)}`);
+                        const response = await fetch(`http://localhost:8000/api/litoral_cells?name=${encodeURIComponent(element)}`);
+                        // const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/litoral_cells?name=${encodeURIComponent(element)}`);
                         if (!response.ok) {
                             throw new Error(`Error al obtener datos de ${element}`);
                         }
 
                         const data = await response.json();
-                        console.log(`Datos de D50 (${element}):`, data);
+                        console.log(`Datos de Litoral Cells (${element}):`, data);
 
                         if (data.features && data.features.length > 0) {
                             const coordinatesArray = data.features.flatMap((feature) => {
                                 if (
                                     feature.geometry &&
-                                    feature.geometry.type === "MultiPoint" &&
+                                    feature.geometry.type === "MultiLineString" &&
                                     feature.geometry.coordinates
                                 ) {
-                                    return feature.geometry.coordinates.map((point) => ({
-                                        type: "D50Collection",
+                                    return feature.geometry.coordinates.map((line) => ({
+                                        type: "LitoralCellsCollection",
                                         name: feature.properties.name,
-                                        d50: feature.properties.d50,
-                                        coordinates: [point[1], point[0]],
+                                        length: feature.properties.length,
+                                        length_km: feature.properties.length_km,
+                                        coord_xfin: feature.properties.coord_xfin,
+                                        coord_yfin: feature.properties.coord_yfin,
+                                        coord_xini: feature.properties.coord_xini,
+                                        coord_yini: feature.properties.coord_yini,
+                                        par_impar: feature.properties.par_impar,
+                                        coordinates: line.map((coordinate) => [coordinate[1], coordinate[0]]),
                                     }));
                                 }
                                 return [];
@@ -64,6 +71,7 @@ const D50 = ({ elements, onDataFetched }) => {
                     }
                 }
 
+                /* Remove elements from "loading" once completed */ 
                 setLoading((prev) => {
                     const updated = new Set(prev);
                     uncachedElements.forEach((el) => updated.delete(el));
@@ -74,13 +82,14 @@ const D50 = ({ elements, onDataFetched }) => {
                     onDataFetched(allData);
                 }
             } catch (error) {
-                console.error("Error al obtener datos de D50:", error);
+                console.error("Error al obtener datos de Litoral Cells:", error);
             }
         };
 
+        /* Detect newly selected elements */ 
         const newElements = elements.filter((el) => !prevElementsRef.current.includes(el));
         if (newElements.length > 0) {
-            fetchD50Data();
+            fetchLitoralCellsData();
         }
         prevElementsRef.current = elements;
     }, [elements, cache, onDataFetched]);
@@ -88,4 +97,4 @@ const D50 = ({ elements, onDataFetched }) => {
     return null;
 };
 
-export default D50;
+export default LitoralCells;

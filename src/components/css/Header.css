@@ -1,0 +1,120 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    position: relative;
+}
+
+.app-title {
+    position: absolute;
+    left: 20px; 
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.dropdown-container {
+    position: relative;
+}
+
+.dropdown-button {
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.dropdown-button:hover {
+    background-color: #555;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 50%; 
+    transform: translateX(-50%);
+    background-color: #444;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    width: 200px;
+    z-index: 1000;
+    padding: 10px 0;
+}
+
+.dropdown-menu-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu-item:hover {
+    background-color: #555;
+}
+
+.dropdown-submenu {
+    background-color: #555;
+    margin-top: 5px;
+    padding: 10px 0;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+    white-space: nowrap; 
+    overflow: hidden; 
+    min-width: max-content;
+}
+
+.dropdown-submenu-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-submenu-item:hover {
+    background-color: #666;
+}
+
+.dropdown-menu-item .fa-chevron-right {
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.dropdown-button .fa-chevron-down {
+    margin-left: 10px;
+    font-size: 14px;
+}
+
+.selected {
+    /* background-color: #708238; */
+    background-color: #a2d5a2;
+    border: 1px solid #7ca77c; 
+    color: #555;
+}
+
+
+/* Responsiveness */
+@media screen and (max-width: 600px) {
+    .dropdown-menu {
+        width: 90%;
+    }
+
+    .app-title {
+        font-size: 16px;
+    }
+}
