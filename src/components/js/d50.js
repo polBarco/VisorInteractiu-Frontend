@@ -57,10 +57,10 @@ const D50 = ({ elements, onDataFetched }) => {
                                 allData.push(...coordinatesArray);
                             }
                         } else {
-                            console.error(`La estructura de datos no es válida para ${element}`);
+                            console.error(`The ${element} data structure is not as expected`);
                         }
                     } catch (error) {
-                        console.error(`Error al procesar ${element}:`, error);
+                        console.error(`Error fetching ${element} data: `, error);
                     }
                 }
 
@@ -74,7 +74,7 @@ const D50 = ({ elements, onDataFetched }) => {
                     onDataFetched(allData);
                 }
             } catch (error) {
-                console.error("Error al obtener datos de D50:", error);
+                console.error("Error fetching D50 data:", error);
             }
         };
 

@@ -5,11 +5,10 @@ import Cartography from "./Cartography";
 import GeoMap from "./Map";
 import D50 from "./d50";
 import LitoralCells from "./LitoralCells";
-import SedimentTransport from "./SedimentTransport";
-import Era5Node from "./Era5Node";
+import Cyclone from "./Cyclone";
 import Hurricane from "./Hurricane";
 import RiversMozambique from "./RiversMozambique";
-import "./css/Header.css";
+import "../css/Header.css";
 
 const Header = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,6 +20,7 @@ const Header = () => {
     const [selectedD50Elements, setSelectedD50Elements] = useState([]);
     const [selectedLitoralCellsElements, setSelectedLitoralCellsElements] = useState([]);
     const [selectedRiversElements, setSelectedRiversElements] = useState([]);
+    const [selectedCycloneElements, setSelectedCycloneElements] = useState([]);
 
     const prevSelectedElement = useRef(null);
     const prevSelectedType = useRef(null);
@@ -49,6 +49,7 @@ const Header = () => {
         if (type === "d50") {
             setSelectedLitoralCellsElements([]);
             setSelectedRiversElements([]);
+            setSelectedCycloneElements([]);
             
             setSelectedD50Elements((prev) => {
                 const updatedSelection = prev.includes(option)
@@ -67,6 +68,7 @@ const Header = () => {
         } else if (type === "litoral_cells") {
             setSelectedD50Elements([]);
             setSelectedRiversElements([]);
+            setSelectedCycloneElements([]);
     
             setSelectedLitoralCellsElements((prev) => {
                 const updatedSelection = prev.includes(option)
@@ -84,6 +86,7 @@ const Header = () => {
         } else if (type === "rivers") {
             setSelectedLitoralCellsElements([]);
             setSelectedD50Elements([]);
+            setSelectedCycloneElements([]);
 
             setSelectedRiversElements((prev) => {
                 const updatedSelection = prev.includes(option)
@@ -97,9 +100,25 @@ const Header = () => {
             });
             setSelectedType("rivers");
 
+        } else if (type === "cyclone") {
+            setSelectedD50Elements([]);
+            setSelectedLitoralCellsElements([]);
+            setSelectedRiversElements([]);
+
+            setSelectedCycloneElements((prev) => {
+                const updatedSelection = prev.includes(option)
+                    ? prev.filter((item) => item !== option) // Deselect
+                    : [...prev, option]; // Select
+    
+                return updatedSelection;
+            });
+            setSelectedType("cyclone");
+
         } else {
             setSelectedD50Elements([]);
             setSelectedLitoralCellsElements([]);
+            setSelectedRiversElements([]);
+            setSelectedCycloneElements([]);
             setGeoData([]);
             setSelectedType(type);
         }
@@ -127,9 +146,11 @@ const Header = () => {
         setSelectedD50Elements([]); 
         setSelectedLitoralCellsElements([]);
         setSelectedRiversElements([]);
+        setSelectedCycloneElements([]);
         setGeoData([]); 
         setGeoData(data);
         setSelectedType("hurricane");
+        toggleMenu();
     };
 
     useEffect(() => {
@@ -181,21 +202,20 @@ const Header = () => {
                                 Cyclone <FontAwesomeIcon icon={faChevronRight} />
                                 {openSubmenu === "cyclone" && (
                                     <div className="dropdown-submenu">
-                                        {["Sediment transport", "Era 5 node"].map(
-                                            (option, index) => (
+                                        {["Sediment transport", "Era 5 node"].map((option, index) => {
+                                            const elementType = option === "Sediment transport" ? "sediment_transport" : "era5_node";
+                                            const isSelected = selectedCycloneElements.includes(elementType);
+
+                                            return (
                                                 <div
                                                     key={index}
-                                                    onClick={() =>
-                                                        option === "Sediment transport"
-                                                            ? handleOptionClick("sediment_transport", option)
-                                                            : handleOptionClick("era5_node", option)
-                                                    }
-                                                    className="dropdown-submenu-item"
+                                                    onClick={() => handleOptionToggle("cyclone", elementType)}
+                                                    className={`dropdown-submenu-item ${isSelected ? "selected" : ""}`}
                                                 >
                                                     {option}
                                                 </div>
-                                            )
-                                        )}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
@@ -299,12 +319,6 @@ const Header = () => {
             {selectedType === "cartography" && selectedElement && (
                 <Cartography element={selectedElement} onDataFetched={handleDataFetched} />
             )}
-            {selectedType === "sediment_transport" && selectedElement && (
-                <SedimentTransport element={selectedElement} onDataFetched={handleDataFetched} />
-            )}
-            {selectedType === "era5_node" && selectedElement && (
-                <Era5Node element={selectedElement} onDataFetched={handleDataFetched} />
-            )}
 
             {selectedType === "d50" && selectedD50Elements.length > 0 && (
                 <D50 elements={selectedD50Elements} onDataFetched={handleDataFetched} />
@@ -318,6 +332,10 @@ const Header = () => {
                 <RiversMozambique elements={selectedRiversElements} onDataFetched={handleDataFetched} />
             )}
 
+            {selectedCycloneElements.length > 0 && (
+                <Cyclone elements={selectedCycloneElements} onDataFetched={handleDataFetched} />
+            )}
+
             {/* Render GeoMap */}
             {/* <GeoMap geoData={geoData} element={selectedElement} /> */}
 
@@ -326,7 +344,10 @@ const Header = () => {
                     if (selectedType === "d50") return selectedD50Elements.includes(item.name);
                     if (selectedType === "litoral_cells") return selectedLitoralCellsElements.includes(item.name);
                     if (selectedType === "rivers") return selectedRiversElements.includes(item.region);
-                    return true;
+                    if (item.type === "SedimentTransportCollection" && selectedCycloneElements.includes("sediment_transport")) return true;
+                    if (item.type === "Era5NodeCollection" && selectedCycloneElements.includes("era5_node")) return true;
+                    if (selectedType === "hurricane") return item.type === "HurricaneCollection";
+                    return false;
                 })}
             />
         </div>
