@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from "react";
 import { MapContainer, TileLayer, Popup, Polygon, Marker, Polyline, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "./css/Map.css";
+import "../css/Map.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const elementColors = {
