@@ -44,7 +44,7 @@ const getCustomIcon = (color) => {
     });
 };
 
-const GeoMap = ({ geoData }) => {
+const GeoMap = ({ geoData, selectedElements}) => {
     console.log("Datos recibidos en GeoMap:", geoData);
 
     const [zoomLevel, setZoomLevel] = useState(6); // Initial zoom level
@@ -114,6 +114,7 @@ const GeoMap = ({ geoData }) => {
                     );
 
                     const shouldShowMarker = visibleMarkerIndices.has(index);
+                    const isSingleElementSelected = selectedElements.length === 1;
 
                     return (
                         <React.Fragment key={index}>
@@ -130,7 +131,7 @@ const GeoMap = ({ geoData }) => {
                                 </Popup>
                             </Polygon>
 
-                            {shouldShowMarker && (
+                            {shouldShowMarker && isSingleElementSelected && (
                                 <Marker
                                     position={[
                                         coordinates.reduce((acc, point) => acc + point[0], 0) / coordinates.length,
