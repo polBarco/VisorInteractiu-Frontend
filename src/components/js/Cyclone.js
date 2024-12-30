@@ -25,9 +25,11 @@ const Cyclon = ({ elements, onDataFetched }) => {
                     try {
                         let url = "";
                         if (element === "sediment_transport") {
-                            url = `http://localhost:8000/api/cyclone_sediment_transport/all`;
+                            //url = `http://localhost:8000/api/cyclone_sediment_transport/all`;
+                            url = `https://visorinteractiu-backend.onrender.com/api/cyclone_sediment_transport/all`
                         } else if (element === "era5_node") {
-                            url = `http://localhost:8000/api/cyclone_era5_node/all`;
+                            //url = `http://localhost:8000/api/cyclone_era5_node/all`;
+                            url = `https://visorinteractiu-backend.onrender.com/api/cyclone_era5_node/all`;
                         } else {
                             console.error("Invalid element provided to Cyclon component");
                             return;

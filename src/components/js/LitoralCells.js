@@ -24,8 +24,8 @@ const LitoralCells = ({ elements, onDataFetched }) => {
 
                 for (const element of uncachedElements) {
                     try {
-                        const response = await fetch(`http://localhost:8000/api/litoral_cells?name=${encodeURIComponent(element)}`);
-                        // const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/litoral_cells?name=${encodeURIComponent(element)}`);
+                        //const response = await fetch(`http://localhost:8000/api/litoral_cells?name=${encodeURIComponent(element)}`);
+                        const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/litoral_cells?name=${encodeURIComponent(element)}`);
                         if (!response.ok) {
                             throw new Error(`Error retrieving data from ${element}`);
                         }

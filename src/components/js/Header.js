@@ -142,15 +142,18 @@ const Header = () => {
         toggleMenu();
     };
 
-    // useEffect(() => {
-    //     prevSelectedElement.current = selectedElement;
-    //     prevSelectedType.current = selectedType;
-    // }, [selectedElement, selectedType]);
+    const handleTitleCLick = () => {
+        cleanData(null);
+        setGeoData([]);
+        toggleMenu();
+    }
 
     return (
         <div>
             <header className="header">
-                <div className="app-title">Interactive Viewer</div>
+                <div className="app-title" onClick={handleTitleCLick}>
+                    Interactive Viewer
+                </div>
                 <div className="dropdown-container">
                     <button onClick={toggleMenu} className="dropdown-button">
                         Layers <FontAwesomeIcon icon={faChevronDown} />
