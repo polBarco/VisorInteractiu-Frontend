@@ -143,7 +143,7 @@ const Header = () => {
     };
 
     const handleTitleCLick = () => {
-        cleanData(null);
+        cleanData("null");
         setGeoData([]);
         toggleMenu();
     }
