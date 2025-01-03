@@ -145,7 +145,7 @@ const Header = () => {
     const handleTitleCLick = () => {
         cleanData("null");
         setGeoData([]);
-        toggleMenu();
+        if (isMenuOpen == true) toggleMenu();
     }
 
     return (
