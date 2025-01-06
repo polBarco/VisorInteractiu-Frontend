@@ -23,8 +23,8 @@ const D50 = ({ elements, onDataFetched }) => {
 
                 for (const element of uncachedElements) {
                     try {
-                        const response = await fetch(`http://localhost:8000/api/d50?name=${encodeURIComponent(element)}`);
-                        // const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/d50?name=${encodeURIComponent(element)}`);
+                        //const response = await fetch(`http://localhost:8000/api/d50?name=${encodeURIComponent(element)}`);
+                        const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/d50?name=${encodeURIComponent(element)}`);
                         if (!response.ok) {
                             throw new Error(`Error al obtener datos de ${element}`);
                         }
@@ -57,10 +57,10 @@ const D50 = ({ elements, onDataFetched }) => {
                                 allData.push(...coordinatesArray);
                             }
                         } else {
-                            console.error(`La estructura de datos no es válida para ${element}`);
+                            console.error(`The ${element} data structure is not as expected`);
                         }
                     } catch (error) {
-                        console.error(`Error al procesar ${element}:`, error);
+                        console.error(`Error fetching ${element} data: `, error);
                     }
                 }
 
@@ -74,7 +74,7 @@ const D50 = ({ elements, onDataFetched }) => {
                     onDataFetched(allData);
                 }
             } catch (error) {
-                console.error("Error al obtener datos de D50:", error);
+                console.error("Error fetching D50 data:", error);
             }
         };
 

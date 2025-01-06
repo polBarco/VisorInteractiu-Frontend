@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo } from "react";
 import { MapContainer, TileLayer, Popup, Polygon, Marker, Polyline, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import "./css/Map.css";
+import "../css/Map.css";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
 const elementColors = {
@@ -44,7 +44,9 @@ const getCustomIcon = (color) => {
     });
 };
 
-const GeoMap = ({ geoData }) => {
+const GeoMap = ({ geoData, selectedElements}) => {
+    console.log("Datos recibidos en GeoMap:", geoData);
+
     const [zoomLevel, setZoomLevel] = useState(6); // Initial zoom level
     const shuffledGeoDataRef = useRef([]); // Ref to store shuffled geoData
     const uniqueHurricaneColors = useRef({});  // Map to assign unique colors for hurricanes
@@ -112,6 +114,7 @@ const GeoMap = ({ geoData }) => {
                     );
 
                     const shouldShowMarker = visibleMarkerIndices.has(index);
+                    const isSingleElementSelected = selectedElements.length === 1;
 
                     return (
                         <React.Fragment key={index}>
@@ -128,7 +131,7 @@ const GeoMap = ({ geoData }) => {
                                 </Popup>
                             </Polygon>
 
-                            {shouldShowMarker && (
+                            {shouldShowMarker && isSingleElementSelected && (
                                 <Marker
                                     position={[
                                         coordinates.reduce((acc, point) => acc + point[0], 0) / coordinates.length,
@@ -173,11 +176,15 @@ const GeoMap = ({ geoData }) => {
                                     <strong>Par_impar:</strong> {par_impar} <br />
                                     <strong>Initial Coordinate:</strong> 
                                     <ul>
-                                        <li>[{coord_xini.toFixed(6)}, {coord_yini.toFixed(6)}]</li>
+                                        {coord_xini != null && coord_yini != null
+                                            ? `[${coord_xini.toFixed(6)}, ${coord_yini.toFixed(6)}]`
+                                            : "N/A"}
                                     </ul>
                                     <strong>Final Coordinate:</strong> 
                                     <ul>
-                                        <li>[{coord_xfin.toFixed(6)}, {coord_yfin.toFixed(6)}]</li>
+                                        {coord_xfin != null && coord_yfin != null
+                                            ? `[${coord_xfin.toFixed(6)}, ${coord_yfin.toFixed(6)}]`
+                                            : "N/A"}
                                     </ul>
                                 </Popup>
                             </Polyline>
