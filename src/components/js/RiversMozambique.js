@@ -24,7 +24,7 @@ const RiversMozambique = ({ elements, onDataFetched }) => {
                 for (const element of uncachedElements) {
                     try {
                         //const response = await fetch(`http://localhost:8000/api/rivers_mozambique?region=${encodeURIComponent(element)}`);
-                        const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/litoral_cells?name=${encodeURIComponent(element)}`);
+                        const response = await fetch(`https://visorinteractiu-backend.onrender.com/api/rivers_mozambique?region=${encodeURIComponent(element)}`);
                         if (!response.ok) {
                             throw new Error(`Error retrieving data from ${element}`);
                         }
